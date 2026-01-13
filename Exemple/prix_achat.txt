@@ -1,0 +1,15 @@
+Produit	Vendeur	Prix
+Steak de boeuf	Boucherie Jackland	$90,00
+Farine de blé	Molienda Hermandad	$80,00
+Farine de maïs	Molienda Hermandad	$80,00
+Huile	Molienda Hermandad	$80,00
+Salade	Theronis Harvest	$20,00
+Tomate	Theronis Harvest	$20,00
+Piment	Theronis Harvest	$20,00
+Pommes	Theronis Harvest	$20,00
+Poivron	Theronis Harvest	$20,00
+Oignon	Woods Farm	$10,00
+Pommes de terre	Woods Farm	$10,00
+Maïs	Woods Farm	$10,00
+Lait	Woods Farm	$20,00
+Oeuf 	Woods Farm	$10,00

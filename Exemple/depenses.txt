@@ -1,0 +1,100 @@
+Date	Heure	Produit Acheté	Vendeur	Nombre	Prix Unitaire	Prix Total	Date de Livraison	Heure de Livraison	Payé?	Récupération par?	Remboursé?
+11/01/2026	19:00:00	Steak de boeuf	Boucherie Jackland	300	$90,00	$27 000,00	11/01/2025	19:00:00	Oui	Jason Parker	Pas Besoin
+12/01/2026	17:23:33	Farine de maïs	Molienda Hermandad	50	$80,00	$4 000,00	12/01/2026	17:23:33	Oui	Jason Parker	Pas Besoin
+12/01/2026	17:23:33	Huile	Molienda Hermandad	200	$80,00	$16 000,00	12/01/2026	17:23:33	Oui	Jason Parker	Pas Besoin
+12/01/2026	21:00:00	Oignon	Woods Farm	100	$10,00	$1 000,00	12/01/2026	21:00:00	Oui	Anne Holmes	Non
+12/01/2026	21:00:00	Pommes de terre	Woods Farm	300	$10,00	$3 000,00	12/01/2026	21:00:00	Oui	Anne Holmes	Non
+12/01/2026	21:00:00	Maïs	Woods Farm	200	$10,00	$2 000,00	12/01/2026	21:00:00	Oui	Anne Holmes	Non
+12/01/2026	21:00:00	Lait	Woods Farm	300	$20,00	$6 000,00	12/01/2026	21:00:00	Oui	Anne Holmes	Non
+12/01/2026	21:00:00	Oeuf 	Woods Farm	400	$10,00	$4 000,00	12/01/2026	21:00:00	Oui	Anne Holmes	Non
+12/01/2026	21:00:00	Frais Livraison	Woods Farm	1	$1 000,00	$1 000,00	12/01/2026	21:00:00	Oui	Anne Holmes	Non
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+		Aucun	Aucun	0	$0,00	$0,00			Non	Aucun	Pas Besoin
+				1851	$1 310,00	$64 000,00					

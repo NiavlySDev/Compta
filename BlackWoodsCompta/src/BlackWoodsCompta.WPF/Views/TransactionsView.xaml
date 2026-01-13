@@ -1,0 +1,117 @@
+<UserControl x:Class="BlackWoodsCompta.WPF.Views.TransactionsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:helpers="clr-namespace:BlackWoodsCompta.WPF.Helpers"
+             Background="#1E1E1E">
+    
+    <UserControl.Resources>
+        <helpers:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <helpers:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+    </UserControl.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="💰" FontSize="36" Margin="0,0,15,0"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Transactions" FontSize="28" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Historique des ventes et dépenses" FontSize="14" Foreground="#AAAAAA"/>
+                </StackPanel>
+            </StackPanel>
+            
+            <Button Command="{Binding OpenAddDialogCommand}" Content="➕ Nouvelle Transaction"
+                   HorizontalAlignment="Right" Background="#673AB7" Foreground="White"
+                   BorderThickness="0" Padding="20,10" FontSize="16" FontWeight="SemiBold"/>
+        </Grid>
+
+        <!-- Search Bar -->
+        <Border Grid.Row="1" Background="#2D2D2D" CornerRadius="10" Padding="15" Margin="0,0,0,20">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="🔍" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                        Width="400" Height="35" Background="#4D4D4D" Foreground="White"
+                        BorderBrush="#673AB7" Padding="10" VerticalContentAlignment="Center"
+                        FontSize="14"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Modern Transactions Cards -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Transactions}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#2D2D2D" CornerRadius="10" Margin="0,0,0,15" Padding="25"
+                                BorderBrush="#444" BorderThickness="1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- Transaction Type Icon -->
+                                <Border Grid.Column="0" Background="#4CAF50" CornerRadius="25" 
+                                        Width="60" Height="60" Margin="0,0,20,0">
+                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="💰" FontSize="20" Foreground="White" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Type}" FontSize="10" Foreground="White" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <!-- Transaction Details -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Category}" FontSize="18" FontWeight="Bold" 
+                                               Foreground="White" Margin="0,0,0,5"/>
+                                    <TextBlock Text="{Binding Description}" FontSize="14" 
+                                               Foreground="#CCCCCC" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📅" FontSize="12" Margin="0,0,8,0"/>
+                                        <TextBlock Text="{Binding CreatedAt, StringFormat='dd/MM/yyyy HH:mm'}" 
+                                                   FontSize="12" Foreground="#888888" Margin="0,0,20,0"/>
+                                        <TextBlock Text="👤" FontSize="12" Margin="0,0,8,0"/>
+                                        <TextBlock Text="{Binding UserName}" FontSize="12" Foreground="#888888"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                
+                                <!-- Amount -->
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="20,0">
+                                    <TextBlock Text="{Binding Amount, StringFormat='{0:C}'}" 
+                                               FontSize="24" FontWeight="Bold" HorizontalAlignment="Right" 
+                                               Foreground="#4CAF50"/>
+                                    <TextBlock Text="{Binding Reference}" FontSize="12" Foreground="#888888" 
+                                               HorizontalAlignment="Right" Margin="0,5,0,0"/>
+                                </StackPanel>
+                                
+                                <!-- Actions -->
+                                <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="20,0,0,0">
+                                    <Button Content="🗑️" Width="40" Height="40" Background="#D32F2F" 
+                                            Foreground="White" BorderThickness="0"
+                                            ToolTip="Supprimer cette transaction"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Grid Grid.RowSpan="3" Background="#80000000" 
+              Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Background="#2D2D2D" CornerRadius="10" Padding="30" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="⏳" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                    <TextBlock Text="Chargement des transactions..." FontSize="16" Foreground="White" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

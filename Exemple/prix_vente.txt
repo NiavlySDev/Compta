@@ -1,0 +1,6 @@
+Produit	Prix Unitaire
+Tacos	$746,00
+Burritos	$695,00
+Frites	$162,00
+Tartes aux pommes	$270,00
+Aucun	$0,00

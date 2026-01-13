@@ -1,0 +1,185 @@
+<UserControl x:Class="BlackWoodsCompta.WPF.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#1E1E1E">
+    
+    <UserControl.Resources>
+        <Style x:Key="DarkButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#673AB7"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                               CornerRadius="4"
+                               Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#7C4DFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="BorderBrush" Value="#3E3E42"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="40">
+            <!-- Header -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,30">
+                <TextBlock Text="⚙️" FontSize="32" VerticalAlignment="Center"/>
+                <TextBlock Text="Paramètres" 
+                          FontSize="28" 
+                          FontWeight="Bold"
+                          Foreground="White"
+                          VerticalAlignment="Center"
+                          Margin="10,0"/>
+            </StackPanel>
+
+            <!-- User Info Card -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="👤 Informations Utilisateur" 
+                              FontSize="18" 
+                              FontWeight="Bold" 
+                              Foreground="White" 
+                              Margin="0,0,0,15"/>
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Utilisateur :" Foreground="#AAAAAA" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CurrentUser}" Foreground="White" Margin="0,0,0,10"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Rôle :" Foreground="#AAAAAA"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CurrentUserRole}" Foreground="White"/>
+                    </Grid>
+
+                    <Button Content="🚪 Déconnexion" 
+                           Command="{Binding LogoutCommand}"
+                           Background="#FF6B6B"
+                           Foreground="White"
+                           BorderThickness="0"
+                           Padding="15,10"
+                           Cursor="Hand"
+                           Margin="0,20,0,0"
+                           HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Database Info Card -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="💾 Base de données" 
+                              FontSize="18" 
+                              FontWeight="Bold" 
+                              Foreground="White" 
+                              Margin="0,0,0,15"/>
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Mode :" Foreground="#AAAAAA" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CurrentDatabaseMode}" Foreground="White" Margin="0,0,0,10"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Emplacement :" Foreground="#AAAAAA" VerticalAlignment="Top"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DatabasePath}" Foreground="White" TextWrapping="Wrap"/>
+                    </Grid>
+
+                    <Button Content="📂 Ouvrir le dossier de la base de données" 
+                           Command="{Binding OpenDatabaseFolderCommand}"
+                           Style="{StaticResource DarkButtonStyle}"
+                           Margin="0,20,0,0"
+                           HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Application Info Card -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="📱 Application" 
+                              FontSize="18" 
+                              FontWeight="Bold" 
+                              Foreground="White" 
+                              Margin="0,0,0,15"/>
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Version :" Foreground="#AAAAAA" Margin="0,0,0,10"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ApplicationVersion}" Foreground="White" Margin="0,0,0,10"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Logs :" Foreground="#AAAAAA" Margin="0,0,0,10" VerticalAlignment="Top"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LogPath}" Foreground="White" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Framework :" Foreground="#AAAAAA"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text=".NET 8.0 / WPF" Foreground="White"/>
+                    </Grid>
+
+                    <Button Content="📋 Ouvrir le dossier des logs" 
+                           Command="{Binding OpenLogsFolderCommand}"
+                           Style="{StaticResource DarkButtonStyle}"
+                           Margin="0,20,0,0"
+                           HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <!-- About Card -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="ℹ️ À propos" 
+                              FontSize="18" 
+                              FontWeight="Bold" 
+                              Foreground="White" 
+                              Margin="0,0,0,15"/>
+                    
+                    <TextBlock Foreground="#AAAAAA" TextWrapping="Wrap" LineHeight="24">
+                        <Run Text="BlackWoods Compta - Application de comptabilité pour le restaurant BlackWoods (GTA RP)"/><LineBreak/>
+                        <LineBreak/>
+                        <Run Text="Développé avec .NET 8.0 et WPF"/><LineBreak/>
+                        <Run Text="Base de données : SQLite (local) ou MySQL (API distante)"/><LineBreak/>
+                        <Run Text="© 2025 BlackWoods Restaurant"/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

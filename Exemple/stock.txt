@@ -1,0 +1,21 @@
+Ingrédients 	Producteurs	Prix (unité)	Commandes en cours...	Stock	Livraison	Quantité	Prix Total	Dernière Commande
+Tortillas	Black Woods	$0,00	Pas Besoin	95		0	$0,00	
+Steak de boeuf	Boucherie Jackland	$90,00	Commandé Récemment	497		0	$0,00	11/01/2026
+Frais Livraison	Boucherie Jackland	$0,00	Commandé Récemment	1		0	$0,00	11/01/2026
+Farine de blé	Molienda Hermandad	$80,00	Pas Besoin	498		0	$0,00	
+Farine de maïs	Molienda Hermandad	$80,00	Commandé Récemment	510		0	$0,00	12/01/2026
+Huile	Molienda Hermandad	$80,00	Commandé Récemment	575		0	$0,00	12/01/2026
+Frais Livraison	Molienda Hermandad	$1 000,00	Commandé Récemment	1		0	$0,00	12/01/2026
+Salade	Theronis Harvest	$20,00	En Production	491	N.C.	100	$2 000,00	
+Tomate	Theronis Harvest	$20,00	En Production	451	N.C.	100	$2 000,00	
+Piment	Theronis Harvest	$20,00	En Production	451	N.C.	100	$2 000,00	
+Pommes	Theronis Harvest	$20,00	En Production	256	N.C.	300	$6 000,00	
+Poivron	Theronis Harvest	$20,00	En Production	481	N.C.	100	$2 000,00	
+Frais Livraison	Theronis Harvest	$1 500,00	En Production	0	N.C.	1	$1 500,00	
+Oignon	Woods Farm	$10,00	Commandé Récemment	532		0	$0,00	12/01/2026
+Pommes de terre	Woods Farm	$10,00	Commandé Récemment	560		0	$0,00	12/01/2026
+Maïs	Woods Farm	$10,00	Commandé Récemment	502		0	$0,00	12/01/2026
+Lait	Woods Farm	$20,00	Commandé Récemment	512		0	$0,00	12/01/2026
+Oeuf 	Woods Farm	$10,00	Commandé Récemment	571		0	$0,00	12/01/2026
+Frais Livraison	Woods Farm	$1 000,00	Commandé Récemment	1		0	$0,00	12/01/2026
+								

@@ -1,0 +1,20 @@
+Nom	Prénom	ID	Téléphone	E-Mail	Discord	Rôle	White List?	Oui
+Parker	Jason	37833	37833-51492	niavlys.dev@gmail.com	niavlysdev	PDG	Oui	Non
+Holmes	Anne	59843	59843-70540	Lorelaye27@gmail.com	lorelaye27	Co-PDG	Oui	Non
+Janta	Chris	58331	58331-69048	brawlaction1@gmail.com	aximox	Manager	Oui	A Faire
+Gordon	Xavier	54689	54689-66534		simonrichardson	Livreur	Non	Non
+								
+							Non	Non
+							Non	Non
+							Non	Non
+							Non	Non
+							Non	Non
+							Non	Non
+							Non	Non
+							Non	Non
+							Non	Non
+							Non	Non
+							Non	Non
+							Non	Non
+Woods	Black		Faction	Faction	Faction	Faction	Non	Oui
+Todira	Joe 	55982			roifilou	Technicien	Non	Non

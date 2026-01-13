@@ -1,0 +1,16 @@
+Date	Total Dépenses		Produit	Total Dépenses		Vendeur	Total Dépenses			
+Date	Total Dépenses		Produit	Total Dépenses		Vendeur	Total Dépenses		Total Dépenses	$64 000,00
+11/01/2026	$27 000,00		Steak de boeuf	$27 000,00		Boucherie Jackland	$27 000,00			
+12/01/2026	$37 000,00		Huile	$16 000,00		Molienda Hermandad	$20 000,00			
+			Lait	$6 000,00		Woods Farm	$17 000,00			
+			Farine de maïs	$4 000,00		Aucun	$0,00			
+			Oeuf 	$4 000,00						
+			Pommes de terre	$3 000,00						
+			Maïs	$2 000,00						
+			Frais Livraison	$1 000,00						
+			Oignon	$1 000,00						
+			Aucun	$0,00						
+										
+										
+										
+										

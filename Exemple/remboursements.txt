@@ -1,0 +1,13 @@
+Employé à rembourser	Montant à rembourser		Date	Produit	Employé	Montant
+Employé à rembourser	Montant à rembourser		Date	Produit	Employé	Montant
+Anne Holmes	$17 000,00		12/01/2026	Oignon	Anne Holmes	$1 000,00
+			12/01/2026	Pommes de terre	Anne Holmes	$3 000,00
+			12/01/2026	Maïs	Anne Holmes	$2 000,00
+			12/01/2026	Lait	Anne Holmes	$6 000,00
+			12/01/2026	Oeuf 	Anne Holmes	$4 000,00
+			12/01/2026	Frais Livraison	Anne Holmes	$1 000,00
+						
+						
+						
+						
+						

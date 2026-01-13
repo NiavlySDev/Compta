@@ -1,0 +1,7 @@
+Tacos	Frites	Burritos	Tarte aux pommes	Tortillas
+Steak de boeuf 	Pommes de terre	Steak de boeuf 	Lait	Farine de maïs
+Tortillas	Huile	Tortillas	Pommes	Huile
+Salade		Poivron	Farine	Lait
+Tomate		Oignons	Oeufs	Oeufs
+Oignon		Maïs		
+Piment				
