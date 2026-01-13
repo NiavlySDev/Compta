@@ -9,3 +9,4 @@ C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoods
 C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\refint\BlackWoodsCompta.Models.dll
 C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\BlackWoodsCompta.Models.pdb
 C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\ref\BlackWoodsCompta.Models.dll
+C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\BlackWoodsCompta.Models.sourcelink.json

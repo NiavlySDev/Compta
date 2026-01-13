@@ -56,91 +56,117 @@
             </Grid>
         </Border>
 
-        <!-- Modern Inventory Cards -->
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding InventoryItems}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Background="#2D2D2D" CornerRadius="12" Margin="10" Padding="25" Width="350" Height="300"
-                                BorderBrush="#673AB7" BorderThickness="1">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                
-                                <!-- Product Header -->
-                                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
-                                    <Border Background="#673AB7" CornerRadius="25" Width="50" Height="50" Margin="0,0,15,0">
-                                        <TextBlock Text="📦" FontSize="24" HorizontalAlignment="Center" 
-                                                   VerticalAlignment="Center" Foreground="White"/>
-                                    </Border>
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding ProductName}" FontSize="18" FontWeight="Bold" Foreground="White"/>
-                                        <TextBlock Text="{Binding Category}" FontSize="14" Foreground="#673AB7" FontWeight="SemiBold"/>
-                                    </StackPanel>
-                                </StackPanel>
-                                
-                                <!-- Stock Status -->
-                                <Border Grid.Row="1" Background="#4CAF50" CornerRadius="6" Padding="12,8" 
-                                        HorizontalAlignment="Left" Margin="0,0,0,15">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="📊" FontSize="14" Margin="0,0,8,0"/>
-                                        <TextBlock Text="{Binding Quantity, StringFormat='{0:F0} unités'}" 
-                                                   FontSize="14" FontWeight="Bold" Foreground="White"/>
-                                    </StackPanel>
-                                </Border>
-                                
-                                <!-- Details -->
-                                <StackPanel Grid.Row="2">
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                        <TextBlock Text="💰" FontSize="14" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Prix:" FontSize="14" Foreground="#AAAAAA" Margin="0,0,8,0"/>
-                                        <TextBlock Text="{Binding UnitCost, StringFormat='{0:C}'}" 
-                                                   FontSize="14" Foreground="White" FontWeight="SemiBold"/>
-                                    </StackPanel>
-                                    
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                        <TextBlock Text="🏪" FontSize="14" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Fournisseur:" FontSize="14" Foreground="#AAAAAA" Margin="0,0,8,0"/>
-                                        <TextBlock Text="{Binding Supplier}" FontSize="14" Foreground="White"/>
-                                    </StackPanel>
-                                    
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                        <TextBlock Text="📅" FontSize="14" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Expiration:" FontSize="14" Foreground="#AAAAAA" Margin="0,0,8,0"/>
-                                        <TextBlock Text="{Binding ExpiryDate, StringFormat='dd/MM/yyyy'}" 
-                                                   FontSize="14" Foreground="White"/>
-                                    </StackPanel>
-                                    
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="⚠️" FontSize="14" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Seuil min:" FontSize="14" Foreground="#AAAAAA" Margin="0,0,8,0"/>
-                                        <TextBlock Text="{Binding MinQuantity, StringFormat='{0:F0} unités'}" 
-                                                   FontSize="14" Foreground="#FF9800"/>
-                                    </StackPanel>
-                                </StackPanel>
-                                
-                                <!-- Actions -->
-                                <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
-                                    <Button Content="✏️ Modifier" Background="#673AB7" Foreground="White" 
-                                            BorderThickness="0" Padding="10,6" Margin="0,0,8,0"/>
-                                    <Button Content="🗑️ Supprimer" Background="#D32F2F" Foreground="White" 
-                                            BorderThickness="0" Padding="10,6"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+        <!-- Modern Inventory DataGrid -->
+        <DataGrid Grid.Row="2" 
+                  ItemsSource="{Binding InventoryItems}" 
+                  SelectedItem="{Binding SelectedItem}"
+                  AutoGenerateColumns="False" 
+                  CanUserAddRows="False" 
+                  CanUserDeleteRows="False" 
+                  IsReadOnly="True" 
+                  SelectionMode="Single"
+                  Background="#1E1E1E"
+                  Foreground="White"
+                  GridLinesVisibility="Horizontal"
+                  HorizontalGridLinesBrush="#673AB7"
+                  RowBackground="#2D2D2D"
+                  AlternatingRowBackground="#363636"
+                  BorderBrush="#673AB7"
+                  BorderThickness="2"
+                  CornerRadius="10"
+                  Margin="0,0,0,0">
+            
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#673AB7"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="FontSize" Value="14"/>
+                    <Setter Property="Padding" Value="12,10"/>
+                    <Setter Property="BorderBrush" Value="#5E35B1"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Height" Value="50"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#673AB7"/>
+                            <Setter Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#9C27B0"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Padding" Value="12,8"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </DataGrid.CellStyle>
+            
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="📦 Produit" 
+                                    Binding="{Binding ProductName}" 
+                                    Width="200"
+                                    FontWeight="SemiBold"/>
+                
+                <DataGridTextColumn Header="🏷️ Catégorie" 
+                                    Binding="{Binding Category}" 
+                                    Width="120"/>
+                
+                <DataGridTextColumn Header="📊 Stock" 
+                                    Binding="{Binding Quantity}" 
+                                    Width="80">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Foreground" Value="#4CAF50"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                
+                <DataGridTextColumn Header="💰 Prix Unitaire" 
+                                    Binding="{Binding UnitCost, StringFormat=C}" 
+                                    Width="120">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                
+                <DataGridTextColumn Header="🏪 Fournisseur" 
+                                    Binding="{Binding Supplier}" 
+                                    Width="150"/>
+                
+                <DataGridTextColumn Header="⚠️ Seuil Min" 
+                                    Binding="{Binding MinQuantity}" 
+                                    Width="100">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="Foreground" Value="#FF9800"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                
+                <DataGridTextColumn Header="📅 Expiration" 
+                                    Binding="{Binding ExpiryDate, StringFormat='dd/MM/yyyy'}" 
+                                    Width="120"/>
+            </DataGrid.Columns>
+        </DataGrid>
 
         <!-- Loading Overlay -->
         <Grid Grid.RowSpan="3" Background="#80000000" 

@@ -42,66 +42,102 @@
             </StackPanel>
         </Border>
 
-        <!-- Modern Transactions Cards -->
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding Transactions}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Background="#2D2D2D" CornerRadius="10" Margin="0,0,0,15" Padding="25"
-                                BorderBrush="#444" BorderThickness="1">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <!-- Transaction Type Icon -->
-                                <Border Grid.Column="0" Background="#4CAF50" CornerRadius="25" 
-                                        Width="60" Height="60" Margin="0,0,20,0">
-                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <TextBlock Text="💰" FontSize="20" Foreground="White" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="{Binding Type}" FontSize="10" Foreground="White" HorizontalAlignment="Center"/>
-                                    </StackPanel>
-                                </Border>
-                                
-                                <!-- Transaction Details -->
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Category}" FontSize="18" FontWeight="Bold" 
-                                               Foreground="White" Margin="0,0,0,5"/>
-                                    <TextBlock Text="{Binding Description}" FontSize="14" 
-                                               Foreground="#CCCCCC" TextWrapping="Wrap" Margin="0,0,0,8"/>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="📅" FontSize="12" Margin="0,0,8,0"/>
-                                        <TextBlock Text="{Binding CreatedAt, StringFormat='dd/MM/yyyy HH:mm'}" 
-                                                   FontSize="12" Foreground="#888888" Margin="0,0,20,0"/>
-                                        <TextBlock Text="👤" FontSize="12" Margin="0,0,8,0"/>
-                                        <TextBlock Text="{Binding UserName}" FontSize="12" Foreground="#888888"/>
-                                    </StackPanel>
-                                </StackPanel>
-                                
-                                <!-- Amount -->
-                                <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="20,0">
-                                    <TextBlock Text="{Binding Amount, StringFormat='{0:C}'}" 
-                                               FontSize="24" FontWeight="Bold" HorizontalAlignment="Right" 
-                                               Foreground="#4CAF50"/>
-                                    <TextBlock Text="{Binding Reference}" FontSize="12" Foreground="#888888" 
-                                               HorizontalAlignment="Right" Margin="0,5,0,0"/>
-                                </StackPanel>
-                                
-                                <!-- Actions -->
-                                <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="20,0,0,0">
-                                    <Button Content="🗑️" Width="40" Height="40" Background="#D32F2F" 
-                                            Foreground="White" BorderThickness="0"
-                                            ToolTip="Supprimer cette transaction"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+        <!-- Modern Transactions DataGrid -->
+        <DataGrid Grid.Row="2" 
+                  ItemsSource="{Binding Transactions}" 
+                  SelectedItem="{Binding SelectedTransaction}"
+                  AutoGenerateColumns="False" 
+                  CanUserAddRows="False" 
+                  CanUserDeleteRows="False" 
+                  IsReadOnly="True" 
+                  SelectionMode="Single"
+                  Background="#1E1E1E"
+                  Foreground="White"
+                  GridLinesVisibility="Horizontal"
+                  HorizontalGridLinesBrush="#673AB7"
+                  RowBackground="#2D2D2D"
+                  AlternatingRowBackground="#363636"
+                  BorderBrush="#673AB7"
+                  BorderThickness="2"
+                  CornerRadius="10"
+                  Margin="0,0,0,0">
+            
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#673AB7"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="FontSize" Value="14"/>
+                    <Setter Property="Padding" Value="12,10"/>
+                    <Setter Property="BorderBrush" Value="#5E35B1"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Height" Value="50"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#673AB7"/>
+                            <Setter Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#9C27B0"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Padding" Value="12,8"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </DataGrid.CellStyle>
+            
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="📅 Date" 
+                                    Binding="{Binding CreatedAt, StringFormat='dd/MM/yyyy HH:mm'}" 
+                                    Width="140"/>
+                
+                <DataGridTextColumn Header="🏷️ Type" 
+                                    Binding="{Binding Type}" 
+                                    Width="100">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                
+                <DataGridTextColumn Header="📋 Description" 
+                                    Binding="{Binding Description}" 
+                                    Width="*"
+                                    FontWeight="Medium"/>
+                
+                <DataGridTextColumn Header="🏪 Catégorie" 
+                                    Binding="{Binding Category}" 
+                                    Width="150"/>
+                
+                <DataGridTextColumn Header="💰 Montant" 
+                                    Binding="{Binding Amount, StringFormat=C}" 
+                                    Width="120">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="FontSize" Value="16"/>
+                            <Setter Property="Foreground" Value="#4CAF50"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
 
         <!-- Loading Overlay -->
         <Grid Grid.RowSpan="3" Background="#80000000" 

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BlackWoodsCompta.Models")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e0547e24304eae6a2b150046defc382443b4cd77")]
 [assembly: System.Reflection.AssemblyProductAttribute("BlackWoodsCompta.Models")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BlackWoodsCompta.Models")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
