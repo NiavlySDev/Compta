@@ -49,4 +49,10 @@ public interface IDataService
     Task<bool> UpdateOrderAsync(Order order);
     Task<bool> DeleteOrderAsync(int id);
     Task<List<OrderItem>> GetOrderItemsAsync(int orderId);
+    
+    // Suppliers
+    Task<List<Supplier>> GetSuppliersAsync(string? search = null);
+    Task<Supplier?> CreateSupplierAsync(Supplier supplier);
+    Task<bool> UpdateSupplierAsync(Supplier supplier);
+    Task<bool> DeleteSupplierAsync(int id);
 }

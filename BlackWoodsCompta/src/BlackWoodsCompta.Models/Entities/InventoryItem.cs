@@ -6,8 +6,6 @@ public class InventoryItem
     public string ProductName { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty; // Matière première, Plat préparé
     public decimal Quantity { get; set; }
-    public string Unit { get; set; } = string.Empty;
-    public decimal UnitCost { get; set; }
     public decimal MinQuantity { get; set; }
     public string? Supplier { get; set; }
     public DateTime? ExpiryDate { get; set; } // Null pour matières premières, 1 semaine pour plats préparés

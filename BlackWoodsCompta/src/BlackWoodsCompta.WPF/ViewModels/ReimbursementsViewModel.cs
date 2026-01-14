@@ -16,6 +16,16 @@ namespace BlackWoodsCompta.WPF.ViewModels
         private string _searchText = string.Empty;
         private EmployeeReimbursement? _selectedReimbursement;
         private bool _isAddingReimbursement;
+        private bool _isLoading;
+        private string? _filterStatus;
+        
+        // Propriétés pour le dialogue d'ajout
+        private ObservableCollection<Employee> _availableEmployees = new();
+        private Employee? _selectedEmployee;
+        private string _newAmount = string.Empty;
+        private DateTime _newRequestDate = DateTime.Now;
+        private string _newDescription = string.Empty;
+        private string _newNotes = string.Empty;
 
         // Propriétés pour les cartes de résumé
         public decimal TotalPendingAmount { get; private set; }
@@ -76,6 +86,88 @@ namespace BlackWoodsCompta.WPF.ViewModels
             }
         }
 
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string? FilterStatus
+        {
+            get => _filterStatus;
+            set
+            {
+                _filterStatus = value;
+                OnPropertyChanged();
+                ApplyFilter();
+            }
+        }
+
+        // Propriétés pour le dialogue d'ajout
+        public ObservableCollection<Employee> AvailableEmployees
+        {
+            get => _availableEmployees;
+            set
+            {
+                _availableEmployees = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Employee? SelectedEmployee
+        {
+            get => _selectedEmployee;
+            set
+            {
+                _selectedEmployee = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string NewAmount
+        {
+            get => _newAmount;
+            set
+            {
+                _newAmount = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DateTime NewRequestDate
+        {
+            get => _newRequestDate;
+            set
+            {
+                _newRequestDate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string NewDescription
+        {
+            get => _newDescription;
+            set
+            {
+                _newDescription = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string NewNotes
+        {
+            get => _newNotes;
+            set
+            {
+                _newNotes = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand AddReimbursementCommand { get; }
         public ICommand EditReimbursementCommand { get; }
         public ICommand DeleteReimbursementCommand { get; }
@@ -96,7 +188,27 @@ namespace BlackWoodsCompta.WPF.ViewModels
             SaveReimbursementCommand = new RelayCommand(_ => SaveReimbursement());
             CancelCommand = new RelayCommand(_ => Cancel());
 
+            LoadEmployees();
             LoadReimbursements();
+        }
+
+        private void LoadEmployees()
+        {
+            // Charger la liste des employés pour le ComboBox
+            var employees = new List<Employee>
+            {
+                new Employee { Id = 1, Name = "Anne Holmes", Position = "Chef exécutif", Discord = "anne_blackwoods", IdRp = "ID_001" },
+                new Employee { Id = 2, Name = "John Smith", Position = "Livreur", Discord = "johnsmith_bw", IdRp = "ID_002" },
+                new Employee { Id = 3, Name = "Sarah Johnson", Position = "Chef pâtissier", Discord = "sarah_pastry", IdRp = "ID_003" },
+                new Employee { Id = 4, Name = "Mike Wilson", Position = "Serveur", Discord = "mike_service", IdRp = "ID_004" },
+                new Employee { Id = 5, Name = "Lisa Brown", Position = "Chef cuisinier", Discord = "lisa_chef", IdRp = "ID_005" }
+            };
+
+            AvailableEmployees.Clear();
+            foreach (var employee in employees)
+            {
+                AvailableEmployees.Add(employee);
+            }
         }
 
         private void LoadReimbursements()
@@ -113,6 +225,16 @@ namespace BlackWoodsCompta.WPF.ViewModels
 
         private ObservableCollection<EmployeeReimbursement> GetRealReimbursementsData()
         {
+            // Employés pour les remboursements
+            var employees = new List<Employee>
+            {
+                new Employee { Id = 1, Name = "Anne Holmes", Position = "Chef exécutif", Discord = "anne_blackwoods", IdRp = "ID_001" },
+                new Employee { Id = 2, Name = "John Smith", Position = "Livreur", Discord = "johnsmith_bw", IdRp = "ID_002" },
+                new Employee { Id = 3, Name = "Sarah Johnson", Position = "Chef pâtissier", Discord = "sarah_pastry", IdRp = "ID_003" },
+                new Employee { Id = 4, Name = "Mike Wilson", Position = "Serveur", Discord = "mike_service", IdRp = "ID_004" },
+                new Employee { Id = 5, Name = "Lisa Brown", Position = "Chef cuisinier", Discord = "lisa_chef", IdRp = "ID_005" }
+            };
+
             return new ObservableCollection<EmployeeReimbursement>
             {
                 // Anne Holmes - Remboursement principal de $17,000 pour achats Woods Farm
@@ -120,6 +242,7 @@ namespace BlackWoodsCompta.WPF.ViewModels
                 {
                     Id = 1,
                     EmployeeId = 1,
+                    Employee = employees[0],
                     Description = "Achats Woods Farm - Légumes pour production (Anne Holmes)",
                     Amount = 17000.00m,
                     RequestDate = new DateTime(2026, 1, 15),
@@ -130,6 +253,7 @@ namespace BlackWoodsCompta.WPF.ViewModels
                 {
                     Id = 2,
                     EmployeeId = 2,
+                    Employee = employees[1],
                     Description = "Remboursement frais de transport - Livraisons (John Smith)",
                     Amount = 250.00m,
                     RequestDate = new DateTime(2026, 1, 10),
@@ -141,6 +265,7 @@ namespace BlackWoodsCompta.WPF.ViewModels
                 {
                     Id = 3,
                     EmployeeId = 3,
+                    Employee = employees[2],
                     Description = "Équipement de cuisine - Ustensiles (Sarah Johnson)",
                     Amount = 180.00m,
                     RequestDate = new DateTime(2026, 1, 8),
@@ -153,6 +278,7 @@ namespace BlackWoodsCompta.WPF.ViewModels
                 {
                     Id = 4,
                     EmployeeId = 4,
+                    Employee = employees[3],
                     Description = "Formation hygiène alimentaire (Mike Wilson)",
                     Amount = 150.00m,
                     RequestDate = new DateTime(2026, 1, 5),
@@ -163,6 +289,7 @@ namespace BlackWoodsCompta.WPF.ViewModels
                 {
                     Id = 5,
                     EmployeeId = 5,
+                    Employee = employees[4],
                     Description = "Réparation équipement - Friteuse (Lisa Brown)",
                     Amount = 320.00m,
                     RequestDate = new DateTime(2026, 1, 12),
@@ -174,10 +301,24 @@ namespace BlackWoodsCompta.WPF.ViewModels
 
         private void UpdateSummaryCards()
         {
-            TotalPendingAmount = Reimbursements.Where(r => r.Status == ReimbursementStatus.En_Attente).Sum(r => r.Amount);
-            TotalApprovedAmount = Reimbursements.Where(r => r.Status == ReimbursementStatus.Approuve).Sum(r => r.Amount);
-            TotalPaidAmount = Reimbursements.Where(r => r.Status == ReimbursementStatus.Paye).Sum(r => r.Amount);
-            PendingCount = Reimbursements.Count(r => r.Status == ReimbursementStatus.En_Attente);
+            // Total à rembourser = En_Attente + Approuve
+            TotalPendingAmount = Reimbursements
+                .Where(r => r.Status == ReimbursementStatus.En_Attente || r.Status == ReimbursementStatus.Approuve)
+                .Sum(r => r.Amount);
+            
+            // Total restant à rembourser = Approuve seulement
+            TotalApprovedAmount = Reimbursements
+                .Where(r => r.Status == ReimbursementStatus.Approuve)
+                .Sum(r => r.Amount);
+            
+            // Total remboursé = Paye
+            TotalPaidAmount = Reimbursements
+                .Where(r => r.Status == ReimbursementStatus.Paye)
+                .Sum(r => r.Amount);
+            
+            // Nombre en attente
+            PendingCount = Reimbursements
+                .Count(r => r.Status == ReimbursementStatus.En_Attente);
 
             OnPropertyChanged(nameof(TotalPendingAmount));
             OnPropertyChanged(nameof(TotalApprovedAmount));
@@ -187,28 +328,39 @@ namespace BlackWoodsCompta.WPF.ViewModels
 
         private void ApplyFilter()
         {
-            if (string.IsNullOrWhiteSpace(SearchText))
-            {
-                FilteredReimbursements = new ObservableCollection<EmployeeReimbursement>(Reimbursements);
-            }
-            else
-            {
-                var filtered = Reimbursements.Where(r =>
-                    (r.Description?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                    (r.Notes?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false)
-                ).ToList();
+            var filtered = Reimbursements.AsEnumerable();
 
-                FilteredReimbursements = new ObservableCollection<EmployeeReimbursement>(filtered);
+            // Filtrage par texte
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                filtered = filtered.Where(r =>
+                    (r.Description?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (r.Notes?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (r.Employee?.Name?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                );
             }
+
+            // Filtrage par statut
+            if (!string.IsNullOrWhiteSpace(FilterStatus) && FilterStatus != "Tous")
+            {
+                if (Enum.TryParse<ReimbursementStatus>(FilterStatus, out var status))
+                {
+                    filtered = filtered.Where(r => r.Status == status);
+                }
+            }
+
+            FilteredReimbursements = new ObservableCollection<EmployeeReimbursement>(filtered);
         }
 
         private void AddReimbursement()
         {
-            SelectedReimbursement = new EmployeeReimbursement 
-            { 
-                RequestDate = DateTime.Now,
-                Status = ReimbursementStatus.En_Attente
-            };
+            // Réinitialiser les champs
+            SelectedEmployee = null;
+            NewAmount = string.Empty;
+            NewRequestDate = DateTime.Now;
+            NewDescription = string.Empty;
+            NewNotes = string.Empty;
+            
             IsAddingReimbursement = true;
         }
 
@@ -238,8 +390,10 @@ namespace BlackWoodsCompta.WPF.ViewModels
                 reimbursement.Status = ReimbursementStatus.Approuve;
                 reimbursement.ApprovedDate = DateTime.Now;
                 reimbursement.UpdatedAt = DateTime.Now;
+                
+                // Rafraîchir complètement la liste pour mettre à jour l'UI
+                ApplyFilter();
                 UpdateSummaryCards();
-                OnPropertyChanged(nameof(FilteredReimbursements));
             }
         }
 
@@ -250,8 +404,10 @@ namespace BlackWoodsCompta.WPF.ViewModels
                 reimbursement.Status = ReimbursementStatus.Paye;
                 reimbursement.PaidDate = DateTime.Now;
                 reimbursement.UpdatedAt = DateTime.Now;
+                
+                // Rafraîchir complètement la liste pour mettre à jour l'UI
+                ApplyFilter();
                 UpdateSummaryCards();
-                OnPropertyChanged(nameof(FilteredReimbursements));
             }
         }
 
@@ -259,34 +415,52 @@ namespace BlackWoodsCompta.WPF.ViewModels
         {
             if (parameter is EmployeeReimbursement reimbursement && reimbursement.Status == ReimbursementStatus.En_Attente)
             {
-                reimbursement.Status = ReimbursementStatus.Rejete;
-                reimbursement.UpdatedAt = DateTime.Now;
-                // Dans une vraie application, on demanderait la raison du rejet
-                reimbursement.Notes = "Rejeté par l'administrateur";
+                // Supprimer complètement la demande rejetée
+                Reimbursements.Remove(reimbursement);
+                ApplyFilter();
                 UpdateSummaryCards();
-                OnPropertyChanged(nameof(FilteredReimbursements));
             }
         }
 
         private void SaveReimbursement()
         {
-            if (SelectedReimbursement != null)
+            if (SelectedEmployee != null && !string.IsNullOrWhiteSpace(NewAmount) && !string.IsNullOrWhiteSpace(NewDescription))
             {
-                if (IsAddingReimbursement)
+                if (decimal.TryParse(NewAmount, out var amount))
                 {
-                    SelectedReimbursement.Id = Reimbursements.Count > 0 ? Reimbursements.Max(r => r.Id) + 1 : 1;
-                    Reimbursements.Add(SelectedReimbursement);
+                    var newReimbursement = new EmployeeReimbursement
+                    {
+                        Id = Reimbursements.Count > 0 ? Reimbursements.Max(r => r.Id) + 1 : 1,
+                        EmployeeId = SelectedEmployee.Id,
+                        Employee = SelectedEmployee,
+                        Amount = amount,
+                        Description = NewDescription,
+                        RequestDate = NewRequestDate,
+                        Status = ReimbursementStatus.En_Attente,
+                        Notes = NewNotes,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    };
+
+                    Reimbursements.Add(newReimbursement);
+                    ApplyFilter();
+                    UpdateSummaryCards();
+                    
+                    // Réinitialiser le dialogue
+                    Cancel();
                 }
-                
-                ApplyFilter();
-                UpdateSummaryCards();
-                SelectedReimbursement = null;
-                IsAddingReimbursement = false;
             }
         }
 
         private void Cancel()
         {
+            // Réinitialiser les champs du dialogue
+            SelectedEmployee = null;
+            NewAmount = string.Empty;
+            NewRequestDate = DateTime.Now;
+            NewDescription = string.Empty;
+            NewNotes = string.Empty;
+            
             SelectedReimbursement = null;
             IsAddingReimbursement = false;
         }

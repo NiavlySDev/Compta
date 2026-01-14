@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP
 C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.WPF\App.xaml
-15465109273
+17601926572
 
-381273620652
+421773200471
 246540361702
-Views\CashRegisterView.xaml;Views\DashboardView.xaml;Views\DatabaseSelectionWindow.xaml;Views\EmployeesView.xaml;Views\InventoryView.xaml;Views\InvoicesView.xaml;Views\LoginWindow.xaml;Views\MainWindow.xaml;Views\OrdersView.xaml;Views\PayrollsView.xaml;Views\ReimbursementsView.xaml;Views\ReportsView.xaml;Views\SettingsView.xaml;Views\SuppliersView.xaml;Views\TransactionsView.xaml;
+Views\CashRegisterView.xaml;Views\DashboardView.xaml;Views\DatabaseSelectionWindow.xaml;Views\EmployeesView.xaml;Views\InventoryView.xaml;Views\InvoicesView.xaml;Views\LoginWindow.xaml;Views\MainWindow.xaml;Views\OrdersView.xaml;Views\PayrollsView.xaml;Views\PurchasePricesView.xaml;Views\ReimbursementsView.xaml;Views\ReportsView.xaml;Views\SalePricesView.xaml;Views\SettingsView.xaml;Views\SuppliersView.xaml;Views\TransactionsView.xaml;
 
 False
 

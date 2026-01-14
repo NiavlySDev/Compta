@@ -6,16 +6,20 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using BlackWoodsCompta.Models.Entities;
 using BlackWoodsCompta.WPF.Helpers;
+using BlackWoodsCompta.WPF.Services;
+using Serilog;
 
 namespace BlackWoodsCompta.WPF.ViewModels
 {
     public class SuppliersViewModel : INotifyPropertyChanged
     {
+        private readonly IDataService _dataService;
         private ObservableCollection<Supplier> _suppliers = new();
         private ObservableCollection<Supplier> _filteredSuppliers = new();
         private string _searchText = string.Empty;
         private Supplier? _selectedSupplier;
         private bool _isAddingSupplier;
+        private bool _isLoading;
 
         public ObservableCollection<Supplier> Suppliers
         {
@@ -69,24 +73,66 @@ namespace BlackWoodsCompta.WPF.ViewModels
             }
         }
 
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand AddSupplierCommand { get; }
         public ICommand EditSupplierCommand { get; }
         public ICommand DeleteSupplierCommand { get; }
         public ICommand SaveSupplierCommand { get; }
         public ICommand CancelCommand { get; }
+        public ICommand RefreshCommand { get; }
 
-        public SuppliersViewModel()
+        public SuppliersViewModel(IDataService dataService)
         {
+            _dataService = dataService;
+            
             AddSupplierCommand = new RelayCommand(_ => AddSupplier());
             EditSupplierCommand = new RelayCommand(EditSupplier);
-            DeleteSupplierCommand = new RelayCommand(DeleteSupplier);
-            SaveSupplierCommand = new RelayCommand(_ => SaveSupplier());
+            DeleteSupplierCommand = new AsyncRelayCommand(DeleteSupplier);
+            SaveSupplierCommand = new AsyncRelayCommand(_ => SaveSupplier());
             CancelCommand = new RelayCommand(_ => Cancel());
+            RefreshCommand = new AsyncRelayCommand(_ => LoadSuppliers());
 
-            LoadSuppliers();
+            _ = LoadSuppliers();
         }
 
-        private void LoadSuppliers()
+        private async System.Threading.Tasks.Task LoadSuppliers()
+        {
+            try
+            {
+                IsLoading = true;
+                var suppliers = await _dataService.GetSuppliersAsync();
+                
+                Suppliers.Clear();
+                foreach (var supplier in suppliers)
+                {
+                    Suppliers.Add(supplier);
+                }
+                
+                ApplyFilter();
+                Log.Information($"Loaded {suppliers.Count} suppliers");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error loading suppliers");
+                // Fallback to mock data if database fails
+                LoadMockSuppliers();
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+        
+        private void LoadMockSuppliers()
         {
             // Charger les données réelles des fournisseurs BlackWoods
             var realSuppliers = GetRealSuppliersData();
@@ -194,28 +240,72 @@ namespace BlackWoodsCompta.WPF.ViewModels
             }
         }
 
-        private void DeleteSupplier(object? parameter)
+        private async System.Threading.Tasks.Task DeleteSupplier(object? parameter)
         {
             if (parameter is Supplier supplier)
             {
-                Suppliers.Remove(supplier);
-                ApplyFilter();
+                try
+                {
+                    var success = await _dataService.DeleteSupplierAsync(supplier.Id);
+                    if (success)
+                    {
+                        Suppliers.Remove(supplier);
+                        FilteredSuppliers.Remove(supplier);
+                        Log.Information($"Supplier '{supplier.Name}' deleted successfully");
+                    }
+                    else
+                    {
+                        Log.Warning($"Failed to delete supplier '{supplier.Name}'");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, $"Error deleting supplier '{supplier.Name}'");
+                }
             }
         }
 
-        private void SaveSupplier()
+        private async System.Threading.Tasks.Task SaveSupplier()
         {
             if (SelectedSupplier != null)
             {
-                if (IsAddingSupplier)
+                try
                 {
-                    SelectedSupplier.Id = Suppliers.Count > 0 ? Suppliers.Max(s => s.Id) + 1 : 1;
-                    Suppliers.Add(SelectedSupplier);
+                    if (IsAddingSupplier)
+                    {
+                        var created = await _dataService.CreateSupplierAsync(SelectedSupplier);
+                        if (created != null)
+                        {
+                            Log.Information($"Supplier '{created.Name}' created successfully");
+                            await LoadSuppliers();
+                        }
+                        else
+                        {
+                            Log.Warning("Failed to create supplier");
+                        }
+                    }
+                    else
+                    {
+                        var success = await _dataService.UpdateSupplierAsync(SelectedSupplier);
+                        if (success)
+                        {
+                            Log.Information($"Supplier '{SelectedSupplier.Name}' updated successfully");
+                            await LoadSuppliers();
+                        }
+                        else
+                        {
+                            Log.Warning($"Failed to update supplier '{SelectedSupplier.Name}'");
+                        }
+                    }
+                    
+                    ApplyFilter();
+                    SelectedSupplier = null;
+                    IsAddingSupplier = false;
                 }
-                
-                ApplyFilter();
-                SelectedSupplier = null;
-                IsAddingSupplier = false;
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Error saving supplier");
+                }
             }
         }
 

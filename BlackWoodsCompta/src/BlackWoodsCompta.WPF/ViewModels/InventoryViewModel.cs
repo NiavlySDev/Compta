@@ -25,8 +25,6 @@ public class InventoryViewModel : ViewModelBase
     private string _newProductName = string.Empty;
     private string _newCategory = "Matière première";
     private decimal _newQuantity;
-    private string _newUnit = "kg";
-    private decimal _newUnitCost;
     private decimal _newMinQuantity = 5;
     private string _newSupplier = string.Empty;
     private DateTime? _newExpiryDate;
@@ -105,6 +103,8 @@ public class InventoryViewModel : ViewModelBase
         set => SetProperty(ref _isAddEditDialogOpen, value);
     }
 
+    public ObservableCollection<Supplier> Suppliers { get; } = new();
+
     public string NewProductName
     {
         get => _newProductName;
@@ -143,18 +143,6 @@ public class InventoryViewModel : ViewModelBase
         set => SetProperty(ref _newQuantity, value);
     }
 
-    public string NewUnit
-    {
-        get => _newUnit;
-        set => SetProperty(ref _newUnit, value);
-    }
-
-    public decimal NewUnitCost
-    {
-        get => _newUnitCost;
-        set => SetProperty(ref _newUnitCost, value);
-    }
-
     public decimal NewMinQuantity
     {
         get => _newMinQuantity;
@@ -174,7 +162,6 @@ public class InventoryViewModel : ViewModelBase
     }
 
     public List<string> Categories { get; } = new() { "Matière première", "Plat préparé" };
-    public List<string> Units { get; } = new() { "kg", "g", "L", "mL", "pièce", "portion" };
 
     public ICommand LoadInventoryCommand { get; }
     public ICommand OpenAddDialogCommand { get; }
@@ -198,6 +185,7 @@ public class InventoryViewModel : ViewModelBase
         AdjustStockCommand = new AsyncRelayCommand(AdjustStockAsync);
 
         _ = LoadInventoryAsync();
+        LoadSuppliersAsync();
     }
 
     private async Task LoadInventoryAsync()
@@ -206,14 +194,31 @@ public class InventoryViewModel : ViewModelBase
         {
             IsLoading = true;
             
-            // FORCER l'utilisation des données locales pour éviter le bug System.Windows.Controls
-            LoadLocalInventoryData();
-            Log.Information($"Loaded {InventoryItems.Count} inventory items from local data");
+            // Charger depuis la base de données
+            var allItems = await _dataService.GetInventoryAsync();
+            var filteredItems = allItems.AsEnumerable();
+            
+            // Appliquer les filtres
+            if (!string.IsNullOrEmpty(SearchText))
+                filteredItems = filteredItems.Where(i => i.ProductName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) || 
+                                                 i.Category.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+            
+            if (!string.IsNullOrEmpty(FilterCategory))
+                filteredItems = filteredItems.Where(i => i.Category == FilterCategory);
+            
+            if (ShowLowStockOnly)
+                filteredItems = filteredItems.Where(i => i.IsLowStock);
+            
+            if (ShowExpiredOnly)
+                filteredItems = filteredItems.Where(i => i.IsExpired || i.IsExpiringSoon);
+
+            InventoryItems = new ObservableCollection<InventoryItem>(filteredItems);
+            Log.Information($"Loaded {InventoryItems.Count} inventory items from database");
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Error loading inventory items");
-            LoadLocalInventoryData();
+            InventoryItems = new ObservableCollection<InventoryItem>();
         }
         finally
         {
@@ -221,34 +226,35 @@ public class InventoryViewModel : ViewModelBase
         }
     }
 
-    private void LoadLocalInventoryData()
+    private Task LoadSuppliersAsync()
     {
-        var localItems = new List<InventoryItem>
+        try
         {
-            new InventoryItem { Id = 1, ProductName = "Steak de bœuf", Category = "Viandes", Quantity = 497, Unit = "unités", UnitCost = 90.00m, MinQuantity = 50, Supplier = "Boucherie Jackland", ExpiryDate = DateTime.Now.AddDays(7) },
-            new InventoryItem { Id = 2, ProductName = "Farine de blé", Category = "Ingrédients", Quantity = 498, Unit = "unités", UnitCost = 80.00m, MinQuantity = 100, Supplier = "Molienda Hermandad", ExpiryDate = DateTime.Now.AddMonths(6) },
-            new InventoryItem { Id = 3, ProductName = "Huile", Category = "Ingrédients", Quantity = 575, Unit = "unités", UnitCost = 80.00m, MinQuantity = 50, Supplier = "Molienda Hermandad", ExpiryDate = DateTime.Now.AddYears(1) },
-            new InventoryItem { Id = 4, ProductName = "Oignon", Category = "Légumes", Quantity = 532, Unit = "unités", UnitCost = 10.00m, MinQuantity = 50, Supplier = "Woods Farm", ExpiryDate = DateTime.Now.AddDays(14) },
-            new InventoryItem { Id = 5, ProductName = "Tomate", Category = "Légumes", Quantity = 451, Unit = "unités", UnitCost = 20.00m, MinQuantity = 50, Supplier = "Theronis Harvest", ExpiryDate = DateTime.Now.AddDays(7) },
-            new InventoryItem { Id = 6, ProductName = "Lait", Category = "Produits Laitiers", Quantity = 512, Unit = "unités", UnitCost = 20.00m, MinQuantity = 100, Supplier = "Woods Farm", ExpiryDate = DateTime.Now.AddDays(7) },
-            new InventoryItem { Id = 7, ProductName = "Tortillas", Category = "Produits Finis", Quantity = 95, Unit = "unités", UnitCost = 0.00m, MinQuantity = 50, Supplier = "Black Woods", ExpiryDate = DateTime.Now.AddDays(7) }
-        };
-        
-        // Appliquer les filtres
-        if (!string.IsNullOrEmpty(SearchText))
-            localItems = localItems.Where(i => i.ProductName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) || 
-                                             i.Category.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
-        
-        if (!string.IsNullOrEmpty(FilterCategory))
-            localItems = localItems.Where(i => i.Category == FilterCategory).ToList();
-        
-        if (ShowLowStockOnly)
-            localItems = localItems.Where(i => i.IsLowStock).ToList();
-        
-        if (ShowExpiredOnly)
-            localItems = localItems.Where(i => i.IsExpired || i.IsExpiringSoon).ToList();
-
-        InventoryItems = new ObservableCollection<InventoryItem>(localItems);
+            // Pour l'instant, on va charger des fournisseurs statiques
+            // En attendant d'avoir GetSuppliersAsync dans l'API
+            Suppliers.Clear();
+            
+            var mockSuppliers = new List<Supplier>
+            {
+                new() { Id = 1, Name = "Boucherie Jackland" },
+                new() { Id = 2, Name = "Molienda Hermandad" },
+                new() { Id = 3, Name = "Woods Farm" },
+                new() { Id = 4, Name = "Theronis Harvest" },
+                new() { Id = 5, Name = "Black Woods" }
+            };
+            
+            foreach (var supplier in mockSuppliers)
+            {
+                Suppliers.Add(supplier);
+            }
+            Log.Information($"Loaded {mockSuppliers.Count} suppliers");
+            return Task.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error loading suppliers");
+            return Task.CompletedTask;
+        }
     }
 
     private void OpenAddDialog()
@@ -257,8 +263,6 @@ public class InventoryViewModel : ViewModelBase
         NewProductName = string.Empty;
         NewCategory = "Matière première";
         NewQuantity = 0;
-        NewUnit = "kg";
-        NewUnitCost = 0;
         NewMinQuantity = 5;
         NewSupplier = string.Empty;
         NewExpiryDate = null;
@@ -274,8 +278,6 @@ public class InventoryViewModel : ViewModelBase
         NewProductName = SelectedItem.ProductName;
         NewCategory = SelectedItem.Category;
         NewQuantity = SelectedItem.Quantity;
-        NewUnit = SelectedItem.Unit;
-        NewUnitCost = SelectedItem.UnitCost;
         NewMinQuantity = SelectedItem.MinQuantity;
         NewSupplier = SelectedItem.Supplier ?? string.Empty;
         NewExpiryDate = SelectedItem.ExpiryDate;
@@ -284,20 +286,21 @@ public class InventoryViewModel : ViewModelBase
 
     private bool CanSaveItem()
     {
-        return !string.IsNullOrWhiteSpace(NewProductName) && NewQuantity >= 0 && NewUnitCost >= 0;
+        return !string.IsNullOrWhiteSpace(NewProductName) && NewQuantity >= 0;
     }
 
     private async Task SaveItemAsync(object? parameter = null)
     {
         try
         {
+            Log.Information("[VM] SaveItemAsync called: IsEditing={IsEditing}, ProductName={ProductName}, Category={Category}", 
+                _isEditing, NewProductName, NewCategory);
+            
             var item = new InventoryItem
             {
                 ProductName = NewProductName,
                 Category = NewCategory,
                 Quantity = NewQuantity,
-                Unit = NewUnit,
-                UnitCost = NewUnitCost,
                 MinQuantity = NewMinQuantity,
                 Supplier = string.IsNullOrWhiteSpace(NewSupplier) ? null : NewSupplier,
                 ExpiryDate = NewExpiryDate,
@@ -308,16 +311,31 @@ public class InventoryViewModel : ViewModelBase
             {
                 item.Id = _editingId;
                 var success = await _dataService.UpdateInventoryItemAsync(item);
-                Log.Information(success ? "Inventory item updated successfully" : "Failed to update inventory item");
+                if (success)
+                {
+                    Log.Information("Inventory item updated successfully");
+                    await LoadInventoryAsync();
+                }
+                else
+                {
+                    Log.Warning("Failed to update inventory item");
+                }
             }
             else
             {
                 item.CreatedAt = DateTime.Now;
                 var created = await _dataService.CreateInventoryItemAsync(item);
-                Log.Information(created != null ? "Inventory item created successfully" : "Failed to create inventory item");
+                if (created != null)
+                {
+                    Log.Information("Inventory item created successfully");
+                    await LoadInventoryAsync();
+                }
+                else
+                {
+                    Log.Warning("Failed to create inventory item");
+                }
             }
 
-            await LoadInventoryAsync();
             CancelDialog();
         }
         catch (Exception ex)
@@ -335,7 +353,7 @@ public class InventoryViewModel : ViewModelBase
                 var success = await _dataService.DeleteInventoryItemAsync(item.Id);
                 if (success)
                 {
-                    await LoadInventoryAsync();
+                    InventoryItems.Remove(item);
                     Log.Information($"Inventory item '{item.ProductName}' deleted");
                 }
             }

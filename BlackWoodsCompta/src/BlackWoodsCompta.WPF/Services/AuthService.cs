@@ -34,7 +34,7 @@ public class AuthService : IAuthService
                     Username = response.User.Username,
                     FullName = response.User.FullName,
                     Role = Enum.Parse<UserRole>(response.User.Role),
-                    Email = response.User.Email
+                    Discord = response.User.Discord
                 };
 
                 Log.Information($"User {username} logged in successfully");

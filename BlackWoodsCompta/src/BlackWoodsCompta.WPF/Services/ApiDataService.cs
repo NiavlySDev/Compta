@@ -241,4 +241,32 @@ public class ApiDataService : IDataService
         var response = await _apiService.PutAsync<ApiResponse<Transaction>>($"/api/transactions/{transaction.Id}", transaction);
         return response?.Success ?? false;
     }
+
+    // Supplier methods
+    public async Task<List<Supplier>> GetSuppliersAsync(string? search = null)
+    {
+        var url = "/api/suppliers";
+        if (!string.IsNullOrWhiteSpace(search))
+            url += $"?search={Uri.EscapeDataString(search)}";
+            
+        var response = await _apiService.GetAsync<ApiResponse<List<Supplier>>>(url);
+        return response?.Data ?? new List<Supplier>();
+    }
+
+    public async Task<Supplier?> CreateSupplierAsync(Supplier supplier)
+    {
+        var response = await _apiService.PostAsync<ApiResponse<Supplier>>("/api/suppliers", supplier);
+        return response?.Data;
+    }
+
+    public async Task<bool> UpdateSupplierAsync(Supplier supplier)
+    {
+        var response = await _apiService.PutAsync<ApiResponse<Supplier>>($"/api/suppliers/{supplier.Id}", supplier);
+        return response?.Success ?? false;
+    }
+
+    public async Task<bool> DeleteSupplierAsync(int id)
+    {
+        return await _apiService.DeleteAsync($"/api/suppliers/{id}");
+    }
 }

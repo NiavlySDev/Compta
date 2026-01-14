@@ -4,19 +4,19 @@
 USE blackwoods_compta;
 
 -- Utilisateurs réels
-INSERT INTO users (username, password_hash, role, full_name, email) VALUES
-('admin', '$2a$11$5ZQj6C8Kqg4FvC7H3p8IqOYjP7qKQ8fGvfKHzRjvzU9p8fGvfKHzR', 'Admin', 'Administrateur', 'admin@blackwoods.com'),
-('jason', '$2a$11$5ZQj6C8Kqg4FvC7H3p8IqOYjP7qKQ8fGvfKHzRjvzU9p8fGvfKHzR', 'Admin', 'Jason Parker', 'jason@blackwoods.com'),
-('anne', '$2a$11$5ZQj6C8Kqg4FvC7H3p8IqOYjP7qKQ8fGvfKHzRjvzU9p8fGvfKHzR', 'Admin', 'Anne Holmes', 'anne@blackwoods.com'),
-('chris', '$2a$11$5ZQj6C8Kqg4FvC7H3p8IqOYjP7qKQ8fGvfKHzRjvzU9p8fGvfKHzR', 'Manager', 'Chris Janta', 'chris@blackwoods.com'),
-('xavier', '$2a$11$5ZQj6C8Kqg4FvC7H3p8IqOYjP7qKQ8fGvfKHzRjvzU9p8fGvfKHzR', 'Employee', 'Xavier Gordon', 'xavier@blackwoods.com');
+INSERT INTO users (username, password_hash, role, full_name, discord, id_rp) VALUES
+('admin', '$2a$11$5ZQj6C8Kqg4FvC7H3p8IqOYjP7qKQ8fGvfKHzRjvzU9p8fGvfKHzR', 'Admin', 'Administrateur', 'admin#1234', 'ADMIN001'),
+('jason', '$2a$11$5ZQj6C8Kqg4FvC7H3p8IqOYjP7qKQ8fGvfKHzRjvzU9p8fGvfKHzR', 'Admin', 'Jason Parker', 'jasonparker#5678', 'JP001'),
+('anne', '$2a$11$5ZQj6C8Kqg4FvC7H3p8IqOYjP7qKQ8fGvfKHzRjvzU9p8fGvfKHzR', 'Admin', 'Anne Holmes', 'anneholmes#9012', 'AH002'),
+('chris', '$2a$11$5ZQj6C8Kqg4FvC7H3p8IqOYjP7qKQ8fGvfKHzRjvzU9p8fGvfKHzR', 'Manager', 'Chris Janta', 'chrisjanta#3456', 'CJ003'),
+('xavier', '$2a$11$5ZQj6C8Kqg4FvC7H3p8IqOYjP7qKQ8fGvfKHzRjvzU9p8fGvfKHzR', 'Employee', 'Xavier Gordon', 'xaviergordon#7890', 'XG004');
 
 -- Employés réels BlackWoods  
-INSERT INTO employees (name, position, phone, email) VALUES
-('Jason Parker', 'PDG', '37833-51492', 'jason@blackwoods.com'),
-('Anne Holmes', 'Co-PDG', '59843-70540', 'anne@blackwoods.com'),
-('Chris Janta', 'Manager', '58331-69048', 'chris@blackwoods.com'),
-('Xavier Gordon', 'Livreur', '54689-66534', 'xavier@blackwoods.com');
+INSERT INTO employees (name, position, phone, discord, id_rp) VALUES
+('Jason Parker', 'PDG', '37833-51492', 'jasonparker#5678', 'JP001'),
+('Anne Holmes', 'Co-PDG', '59843-70540', 'anneholmes#9012', 'AH002'),
+('Chris Janta', 'Manager', '58331-69048', 'chrisjanta#3456', 'CJ003'),
+('Xavier Gordon', 'Livreur', '54689-66534', 'xaviergordon#7890', 'XG004');
 
 -- Fournisseurs réels avec leurs produits et prix
 INSERT INTO suppliers (name, contact_person, phone, email, address, notes) VALUES

@@ -148,7 +148,7 @@ public class TransactionsViewModel : ViewModelBase
 
         LoadTransactionsCommand = new AsyncRelayCommand(_ => LoadTransactionsAsync());
         OpenAddDialogCommand = new RelayCommand(_ => OpenAddDialog());
-        OpenEditDialogCommand = new RelayCommand(_ => OpenEditDialog(), _ => SelectedTransaction != null);
+        OpenEditDialogCommand = new RelayCommand(OpenEditDialogWithParameter);
         SaveTransactionCommand = new AsyncRelayCommand(_ => SaveTransactionAsync(), _ => CanSaveTransaction());
         CancelDialogCommand = new RelayCommand(_ => CancelDialog());
         DeleteTransactionCommand = new AsyncRelayCommand(DeleteTransactionAsync);
@@ -177,8 +177,22 @@ public class TransactionsViewModel : ViewModelBase
         {
             IsLoading = true;
 
-            // Charger les vraies transactions depuis votre comptabilité Excel
-            var transactions = await Task.Run(() => GetRealTransactionsData());
+            // Charger les transactions depuis la base de données
+            var allTransactions = await _dataService.GetTransactionsAsync();
+            
+            // Si pas de transactions en DB, charger les données d'exemple
+            if (!allTransactions.Any())
+            {
+                var mockTransactions = GetRealTransactionsData();
+                // Sauvegarder les données d'exemple en DB
+                foreach (var mockTransaction in mockTransactions)
+                {
+                    await _dataService.CreateTransactionAsync(mockTransaction);
+                }
+                allTransactions = await _dataService.GetTransactionsAsync();
+            }
+
+            var transactions = allTransactions.ToList();
 
             if (transactions != null)
             {
@@ -193,7 +207,7 @@ public class TransactionsViewModel : ViewModelBase
                 }
 
                 Transactions = new ObservableCollection<Transaction>(transactions.OrderByDescending(t => t.CreatedAt));
-                Log.Information($"Loaded {transactions.Count} real transactions from Excel data");
+                Log.Information($"Loaded {transactions.Count} transactions from database");
             }
         }
         catch (Exception ex)
@@ -398,6 +412,21 @@ public class TransactionsViewModel : ViewModelBase
         IsAddEditDialogOpen = true;
     }
 
+    private void OpenEditDialogWithParameter(object? parameter)
+    {
+        if (parameter is not Transaction transaction) return;
+
+        _isEditing = true;
+        _editingId = transaction.Id;
+        NewType = transaction.Type;
+        NewCategory = transaction.Category;
+        NewAmount = transaction.Amount;
+        NewDescription = transaction.Description ?? string.Empty;
+        NewDate = transaction.CreatedAt;
+        NewEmployeeId = transaction.EmployeeId;
+        IsAddEditDialogOpen = true;
+    }
+
     private async Task SaveTransactionAsync(object? parameter = null)
     {
         try
@@ -429,14 +458,28 @@ public class TransactionsViewModel : ViewModelBase
                 await _dataService.DeleteTransactionAsync(_editingId);
                 var created = await _dataService.CreateTransactionAsync(transaction);
                 Log.Information("Transaction updated: {Result}", created != null ? "Success" : "Failed");
+                
+                if (created != null)
+                {
+                    // Mise à jour locale
+                    var existingTransaction = Transactions.FirstOrDefault(t => t.Id == _editingId);
+                    if (existingTransaction != null)
+                        Transactions.Remove(existingTransaction);
+                    Transactions.Insert(0, created); // Ajouter en haut car c'est la plus récente
+                }
             }
             else
             {
                 var created = await _dataService.CreateTransactionAsync(transaction);
                 Log.Information("Transaction created: {Result}", created != null ? "Success" : "Failed");
+                
+                if (created != null)
+                {
+                    // Ajouter à la collection locale
+                    Transactions.Insert(0, created); // Ajouter en haut car c'est la plus récente
+                }
             }
 
-            await LoadTransactionsAsync();
             CancelDialog();
             Log.Information(_isEditing ? "Transaction updated successfully" : "Transaction created successfully");
         }
@@ -460,7 +503,8 @@ public class TransactionsViewModel : ViewModelBase
                 var success = await _dataService.DeleteTransactionAsync(transaction.Id);
                 if (success)
                 {
-                    await LoadTransactionsAsync();
+                    // Supprimer de la collection locale
+                    Transactions.Remove(transaction);
                     Log.Information($"Transaction {transaction.Id} deleted");
                 }
             }

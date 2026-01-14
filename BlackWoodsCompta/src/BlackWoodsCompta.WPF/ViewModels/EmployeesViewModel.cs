@@ -25,7 +25,8 @@ public class EmployeesViewModel : ViewModelBase
     private string _newName = string.Empty;
     private string _newPosition = string.Empty;
     private string _newPhone = string.Empty;
-    private string _newEmail = string.Empty;
+    private string _newDiscord = string.Empty;
+    private string _newIdRp = string.Empty;
     private bool _newIsActive = true;
     private bool _isEditing;
     private int _editingId;
@@ -120,16 +121,22 @@ public class EmployeesViewModel : ViewModelBase
         set => SetProperty(ref _newPhone, value);
     }
 
-    public string NewEmail
+    public string NewDiscord
     {
-        get => _newEmail;
+        get => _newDiscord;
         set
         {
-            if (SetProperty(ref _newEmail, value))
+            if (SetProperty(ref _newDiscord, value))
             {
                 (SaveEmployeeCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
             }
         }
+    }
+
+    public string NewIdRp
+    {
+        get => _newIdRp;
+        set => SetProperty(ref _newIdRp, value);
     }
 
     public bool NewIsActive
@@ -140,6 +147,7 @@ public class EmployeesViewModel : ViewModelBase
 
     public ICommand OpenAddDialogCommand { get; }
     public ICommand OpenEditDialogCommand { get; }
+    public ICommand OpenEditDialogWithParameterCommand { get; }
     public ICommand SaveEmployeeCommand { get; }
     public ICommand CancelDialogCommand { get; }
     public ICommand DeleteEmployeeCommand { get; }
@@ -157,6 +165,7 @@ public class EmployeesViewModel : ViewModelBase
 
         OpenAddDialogCommand = new RelayCommand(_ => OpenAddDialog());
         OpenEditDialogCommand = new RelayCommand(_ => OpenEditDialog(), _ => SelectedEmployee != null);
+        OpenEditDialogWithParameterCommand = new RelayCommand(param => OpenEditDialogWithParameter(param as Employee), param => param is Employee);
         SaveEmployeeCommand = new AsyncRelayCommand(SaveEmployeeAsync, CanSaveEmployee);
         CancelDialogCommand = new RelayCommand(_ => CancelDialog());
         DeleteEmployeeCommand = new RelayCommand(async param => await DeleteEmployeeAsync(param as Employee), param => param is Employee);
@@ -171,7 +180,8 @@ public class EmployeesViewModel : ViewModelBase
         NewName = string.Empty;
         NewPosition = "PDG";
         NewPhone = string.Empty;
-        NewEmail = string.Empty;
+        NewDiscord = string.Empty;
+        NewIdRp = string.Empty;
         NewIsActive = true;
         IsAddEditDialogOpen = true;
     }
@@ -185,8 +195,24 @@ public class EmployeesViewModel : ViewModelBase
         NewName = SelectedEmployee.Name;
         NewPosition = SelectedEmployee.Position;
         NewPhone = SelectedEmployee.Phone ?? string.Empty;
-        NewEmail = SelectedEmployee.Email ?? string.Empty;
+        NewDiscord = SelectedEmployee.Discord ?? string.Empty;
+        NewIdRp = SelectedEmployee.IdRp ?? string.Empty;
         NewIsActive = SelectedEmployee.IsActive;
+        IsAddEditDialogOpen = true;
+    }
+
+    private void OpenEditDialogWithParameter(Employee? employee)
+    {
+        if (employee == null) return;
+
+        _isEditing = true;
+        _editingId = employee.Id;
+        NewName = employee.Name;
+        NewPosition = employee.Position;
+        NewPhone = employee.Phone ?? string.Empty;
+        NewDiscord = employee.Discord ?? string.Empty;
+        NewIdRp = employee.IdRp ?? string.Empty;
+        NewIsActive = employee.IsActive;
         IsAddEditDialogOpen = true;
     }
 
@@ -194,7 +220,7 @@ public class EmployeesViewModel : ViewModelBase
     {
         return !string.IsNullOrWhiteSpace(NewName) && 
                !string.IsNullOrWhiteSpace(NewPosition) &&
-               !string.IsNullOrWhiteSpace(NewEmail);
+               !string.IsNullOrWhiteSpace(NewDiscord);
     }
 
     private async Task SaveEmployeeAsync(object? parameter)
@@ -210,7 +236,8 @@ public class EmployeesViewModel : ViewModelBase
                 Salary = 0, // Default value, not used anymore
                 HireDate = DateTime.Now, // Set to current date
                 Phone = string.IsNullOrWhiteSpace(NewPhone) ? null : NewPhone,
-                Email = string.IsNullOrWhiteSpace(NewEmail) ? null : NewEmail,
+                Discord = string.IsNullOrWhiteSpace(NewDiscord) ? null : NewDiscord,
+                IdRp = string.IsNullOrWhiteSpace(NewIdRp) ? null : NewIdRp,
                 IsActive = NewIsActive
             };
 
@@ -221,6 +248,9 @@ public class EmployeesViewModel : ViewModelBase
                 if (success)
                 {
                     Log.Information("Employee updated: {Name}", employee.Name);
+                    
+                    // Reload employees from database
+                    await LoadEmployeesAsync();
                 }
             }
             else
@@ -231,17 +261,20 @@ public class EmployeesViewModel : ViewModelBase
                 {
                     Log.Information("Employee created: {Name}", created.Name);
                     
+                    // Reload employees from database
+                    await LoadEmployeesAsync();
+                    
                     // Create user account with temporary password
                     var tempPassword = GenerateTemporaryPassword();
                     var userRole = GetUserRoleFromPosition(NewPosition);
                     
                     var user = new User
                     {
-                        Username = NewEmail,
+                        Username = NewDiscord,
                         PasswordHash = BCrypt.Net.BCrypt.HashPassword(tempPassword),
                         Role = userRole,
                         FullName = NewName,
-                        Email = NewEmail,
+                        Discord = NewDiscord,
                         IsActive = true
                     };
 
@@ -249,8 +282,8 @@ public class EmployeesViewModel : ViewModelBase
                     {
                         // Note: Need to add CreateUserAsync to IDataService
                         // For now we log the temp password
-                        Log.Information("User account for {Name}: Email={Email}, TempPassword={Password}", 
-                            created.Name, NewEmail, tempPassword);
+                        Log.Information("User account for {Name}: Discord={Discord}, TempPassword={Password}", 
+                            created.Name, NewDiscord, tempPassword);
                     }
                     catch (Exception userEx)
                     {
@@ -260,7 +293,6 @@ public class EmployeesViewModel : ViewModelBase
             }
 
             IsAddEditDialogOpen = false;
-            await LoadEmployeesAsync();
         }
         catch (Exception ex)
         {

@@ -9,7 +9,54 @@
         <helpers:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
     </UserControl.Resources>
     
-    <Grid Margin="20">
+    <Grid>
+        <!-- Dialog Overlay for Add/Edit Transaction -->
+        <Grid Visibility="{Binding IsAddEditDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
+              Background="#CC000000"
+              Panel.ZIndex="1000">
+            <Border Width="500" Background="#2D2D30" Padding="20" CornerRadius="4" 
+                    BorderBrush="#673AB7" BorderThickness="2"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="Transaction" FontSize="20" FontWeight="Bold" Foreground="White" Margin="0,0,0,20"/>
+
+                    <TextBlock Text="Type" Foreground="#AAAAAA" Margin="0,0,0,5"/>
+                    <ComboBox ItemsSource="{Binding TransactionTypes}" 
+                             SelectedItem="{Binding NewType}" 
+                             Background="#2D2D30" Foreground="White" BorderBrush="#3E3E42" BorderThickness="1" Padding="10" FontSize="14" Margin="0,0,0,15"/>
+
+                    <TextBlock Text="Catégorie" Foreground="#AAAAAA" Margin="0,0,0,5"/>
+                    <ComboBox ItemsSource="{Binding Categories}" 
+                             SelectedItem="{Binding NewCategory}" 
+                             IsEditable="True"
+                             Background="#2D2D30" Foreground="White" BorderBrush="#3E3E42" BorderThickness="1" Padding="10" FontSize="14" Margin="0,0,0,15"/>
+
+                    <TextBlock Text="Montant ($)" Foreground="#AAAAAA" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding NewAmount, UpdateSourceTrigger=PropertyChanged}" Background="#2D2D30" Foreground="White" BorderBrush="#3E3E42" BorderThickness="1" Padding="10" FontSize="14" Margin="0,0,0,15"/>
+
+                    <TextBlock Text="Description" Foreground="#AAAAAA" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding NewDescription, UpdateSourceTrigger=PropertyChanged}" Background="#2D2D30" Foreground="White" BorderBrush="#3E3E42" BorderThickness="1" Padding="10" FontSize="14" Margin="0,0,0,15"/>
+
+                    <TextBlock Text="Date" Foreground="#AAAAAA" Margin="0,0,0,5"/>
+                    <DatePicker SelectedDate="{Binding NewDate}" Background="#2D2D30" Foreground="White" BorderBrush="#3E3E42" BorderThickness="1" Padding="10" FontSize="14" Margin="0,0,0,15"/>
+
+                    <TextBlock Text="Employé (optionnel)" Foreground="#AAAAAA" Margin="0,0,0,5"/>
+                    <ComboBox ItemsSource="{Binding Employees}" 
+                             SelectedValue="{Binding NewEmployeeId}" 
+                             SelectedValuePath="Id"
+                             DisplayMemberPath="Name"
+                             Background="#2D2D30" Foreground="White" BorderBrush="#3E3E42" BorderThickness="1" Padding="10" FontSize="14" Margin="0,0,0,20"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Annuler" Command="{Binding CancelDialogCommand}" Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" Padding="15,8" Margin="0,0,10,0" Cursor="Hand"/>
+                        <Button Content="Enregistrer" Command="{Binding SaveTransactionCommand}" Background="#673AB7" Foreground="White" BorderThickness="0" Padding="20,10" FontSize="16" FontWeight="SemiBold" Cursor="Hand"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Main Content -->
+        <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -59,7 +106,6 @@
                   AlternatingRowBackground="#363636"
                   BorderBrush="#673AB7"
                   BorderThickness="2"
-                  CornerRadius="10"
                   Margin="0,0,0,0">
             
             <DataGrid.ColumnHeaderStyle>
@@ -136,6 +182,33 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
+                
+                <DataGridTemplateColumn Header="⚙️ Actions" Width="150">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Content="✏️" 
+                                       Command="{Binding DataContext.OpenEditDialogCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                       CommandParameter="{Binding}"
+                                       Margin="5,0"
+                                       Padding="8,4"
+                                       Background="#FF9800" 
+                                       Foreground="White"
+                                       BorderThickness="0"
+                                       ToolTip="Modifier la transaction"/>
+                                <Button Content="🗑️" 
+                                       Command="{Binding DataContext.DeleteTransactionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                       CommandParameter="{Binding}"
+                                       Margin="5,0"
+                                       Padding="8,4"
+                                       Background="#F44336" 
+                                       Foreground="White"
+                                       BorderThickness="0"
+                                       ToolTip="Supprimer la transaction"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
 
@@ -149,5 +222,6 @@
                 </StackPanel>
             </Border>
         </Grid>
+    </Grid>
     </Grid>
 </UserControl>

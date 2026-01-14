@@ -40,6 +40,8 @@ public class MainViewModel : ViewModelBase
     public ICommand NavigateToInvoicesCommand { get; }
     public ICommand NavigateToCashRegisterCommand { get; }
     public ICommand NavigateToSuppliersCommand { get; }
+    public ICommand NavigateToPurchasePricesCommand { get; }
+    public ICommand NavigateToSalePricesCommand { get; }
     public ICommand NavigateToReimbursementsCommand { get; }
     public ICommand NavigateToReportsCommand { get; }
     public ICommand NavigateToSettingsCommand { get; }
@@ -64,6 +66,8 @@ public class MainViewModel : ViewModelBase
         NavigateToInvoicesCommand = new RelayCommand(_ => NavigateToInvoices());
         NavigateToCashRegisterCommand = new RelayCommand(_ => NavigateToCashRegister());
         NavigateToSuppliersCommand = new RelayCommand(_ => NavigateToSuppliers());
+        NavigateToPurchasePricesCommand = new RelayCommand(_ => NavigateToPurchasePrices());
+        NavigateToSalePricesCommand = new RelayCommand(_ => NavigateToSalePrices());
         NavigateToReimbursementsCommand = new RelayCommand(_ => NavigateToReimbursements());
         NavigateToReportsCommand = new RelayCommand(_ => NavigateToReports());
         NavigateToSettingsCommand = new RelayCommand(_ => NavigateToSettings());
@@ -166,6 +170,24 @@ public class MainViewModel : ViewModelBase
     private void NavigateToSuppliers()
     {
         var view = App.ServiceProvider?.GetService(typeof(SuppliersView)) as SuppliersView;
+        if (view != null)
+        {
+            CurrentView = view;
+        }
+    }
+
+    private void NavigateToPurchasePrices()
+    {
+        var view = App.ServiceProvider?.GetService(typeof(PurchasePricesView)) as PurchasePricesView;
+        if (view != null)
+        {
+            CurrentView = view;
+        }
+    }
+
+    private void NavigateToSalePrices()
+    {
+        var view = App.ServiceProvider?.GetService(typeof(SalePricesView)) as SalePricesView;
         if (view != null)
         {
             CurrentView = view;

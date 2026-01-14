@@ -129,3 +129,7 @@ C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoods
 C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.WPF\obj\Debug\net8.0-windows\Views\ReimbursementsView.baml
 C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.WPF\obj\Debug\net8.0-windows\Views\SuppliersView.baml
 C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.WPF\obj\Debug\net8.0-windows\BlackWoodsCompta.WPF.sourcelink.json
+C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.WPF\obj\Debug\net8.0-windows\Views\PurchasePricesView.g.cs
+C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.WPF\obj\Debug\net8.0-windows\Views\SalePricesView.g.cs
+C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.WPF\obj\Debug\net8.0-windows\Views\PurchasePricesView.baml
+C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.WPF\obj\Debug\net8.0-windows\Views\SalePricesView.baml

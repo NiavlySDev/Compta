@@ -138,6 +138,24 @@
                             </StackPanel>
                         </Button>
 
+                        <!-- Purchase Prices -->
+                        <Button Command="{Binding NavigateToPurchasePricesCommand}"
+                               Style="{StaticResource MenuButtonStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="💲" FontSize="24" Margin="10,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Prix d'Achat" VerticalAlignment="Center" FontSize="14"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Sale Prices -->
+                        <Button Command="{Binding NavigateToSalePricesCommand}"
+                               Style="{StaticResource MenuButtonStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="💰" FontSize="24" Margin="10,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Prix de Vente" VerticalAlignment="Center" FontSize="14"/>
+                            </StackPanel>
+                        </Button>
+
                         <!-- Reimbursements -->
                         <Button Command="{Binding NavigateToReimbursementsCommand}"
                                Style="{StaticResource MenuButtonStyle}">

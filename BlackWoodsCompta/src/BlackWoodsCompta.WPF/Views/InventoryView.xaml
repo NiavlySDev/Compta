@@ -6,7 +6,93 @@
     
     <UserControl.Resources>
         <helpers:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
+        <!-- Styles pour les dialogues -->
+        <Style x:Key="DarkTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#3E3E42"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        
+        <Style x:Key="DarkButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#673AB7"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
+        <Style x:Key="DarkDatePickerStyle" TargetType="DatePicker">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#3E3E42"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
     </UserControl.Resources>
+    
+    <Grid>
+        <!-- Dialog Overlay -->
+        <Grid Visibility="{Binding IsAddEditDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
+              Background="#CC000000"
+              Panel.ZIndex="1000">
+            <Border Width="600" Background="#2D2D30" Padding="30" CornerRadius="10" 
+                    BorderBrush="#673AB7" BorderThickness="2"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="🏪 Article d'Inventaire" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,20"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Colonne 1 -->
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Nom du produit" Foreground="#AAAAAA" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding NewProductName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource DarkTextBoxStyle}" Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Catégorie" Foreground="#AAAAAA" Margin="0,0,0,5"/>
+                            <ComboBox ItemsSource="{Binding Categories}" 
+                                     SelectedItem="{Binding NewCategory, Mode=TwoWay}" 
+                                     IsEditable="False"
+                                     Background="#2D2D30" Foreground="White" BorderBrush="#3E3E42" BorderThickness="1" Padding="10" FontSize="14" Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Quantité" Foreground="#AAAAAA" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding NewQuantity, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource DarkTextBoxStyle}" Margin="0,0,0,15"/>
+                        </StackPanel>
+                        
+                        <!-- Colonne 2 -->
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Seuil minimum" Foreground="#AAAAAA" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding NewMinQuantity, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource DarkTextBoxStyle}" Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Fournisseur" Foreground="#AAAAAA" Margin="0,0,0,5"/>
+                            <ComboBox ItemsSource="{Binding Suppliers}" 
+                                     SelectedValue="{Binding NewSupplier}" 
+                                     SelectedValuePath="Name"
+                                     DisplayMemberPath="Name"
+                                     IsEditable="True"
+                                     Background="#2D2D30" Foreground="White" BorderBrush="#3E3E42" BorderThickness="1" Padding="10" FontSize="14" Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Date d'expiration" Foreground="#AAAAAA" Margin="0,0,0,5"/>
+                            <DatePicker SelectedDate="{Binding NewExpiryDate}" Style="{StaticResource DarkDatePickerStyle}" Margin="0,0,0,15"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                        <Button Content="Annuler" Command="{Binding CancelDialogCommand}" Background="Transparent" Foreground="White" BorderBrush="White" BorderThickness="1" Padding="15,8" Margin="0,0,15,0"/>
+                        <Button Content="Enregistrer" Command="{Binding SaveItemCommand}" Style="{StaticResource DarkButtonStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
     
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -73,7 +159,6 @@
                   AlternatingRowBackground="#363636"
                   BorderBrush="#673AB7"
                   BorderThickness="2"
-                  CornerRadius="10"
                   Margin="0,0,0,0">
             
             <DataGrid.ColumnHeaderStyle>
@@ -136,17 +221,6 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
                 
-                <DataGridTextColumn Header="💰 Prix Unitaire" 
-                                    Binding="{Binding UnitCost, StringFormat=C}" 
-                                    Width="120">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                            <Setter Property="FontWeight" Value="SemiBold"/>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                
                 <DataGridTextColumn Header="🏪 Fournisseur" 
                                     Binding="{Binding Supplier}" 
                                     Width="150"/>
@@ -169,6 +243,8 @@
         </DataGrid>
 
         <!-- Loading Overlay -->
+        </Grid>
+        
         <Grid Grid.RowSpan="3" Background="#80000000" 
               Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Border Background="#2D2D2D" CornerRadius="10" Padding="30" HorizontalAlignment="Center" VerticalAlignment="Center">

@@ -24,7 +24,6 @@ public class RecipeIngredient
     public int RecipeId { get; set; }
     public string IngredientName { get; set; } = string.Empty;
     public decimal Quantity { get; set; }
-    public string Unit { get; set; } = string.Empty;
     public string? Notes { get; set; }
 
     // Navigation property

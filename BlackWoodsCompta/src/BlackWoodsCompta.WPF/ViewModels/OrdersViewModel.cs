@@ -16,12 +16,22 @@ public class OrdersViewModel : ViewModelBase
     private ObservableCollection<Order> _orders = new();
     private Order? _selectedOrder;
     private ObservableCollection<OrderItem> _orderItems = new();
+    private ObservableCollection<Supplier> _suppliers = new();
     private string _searchText = string.Empty;
     private string? _filterStatus;
     private bool _isLoading;
     private bool _isAddEditDialogOpen;
     
     // New/Edit order properties
+    private int? _selectedSupplierId;
+    private DateTime? _expectedDeliveryDate = DateTime.Now.AddDays(7);
+    private string _orderNotes = string.Empty;
+    
+    // New item properties for current order
+    private string _productName = string.Empty;
+    private decimal _quantity;
+    private decimal _unitPrice;
+    
     private string _newOrderNumber = string.Empty;
     private string _newSupplier = string.Empty;
     private DateTime _newOrderDate = DateTime.Now;
@@ -33,7 +43,6 @@ public class OrdersViewModel : ViewModelBase
     private string _newItemProductName = string.Empty;
     private string _newItemCategory = "Matière première";
     private decimal _newItemQuantity;
-    private string _newItemUnit = "kg";
     private decimal _newItemUnitPrice;
     private DateTime? _newItemExpiryDate;
     
@@ -55,7 +64,61 @@ public class OrdersViewModel : ViewModelBase
     public ObservableCollection<OrderItem> OrderItems
     {
         get => _orderItems;
-        set => SetProperty(ref _orderItems, value);
+        set
+        {
+            if (SetProperty(ref _orderItems, value))
+            {
+                OnPropertyChanged(nameof(CurrentOrderItems));
+                OnPropertyChanged(nameof(HasOrderItems));
+                OnPropertyChanged(nameof(TotalAmount));
+            }
+        }
+    }
+
+    public ObservableCollection<OrderItem> CurrentOrderItems => OrderItems;
+    
+    public bool HasOrderItems => OrderItems.Any();
+
+    public ObservableCollection<Supplier> Suppliers
+    {
+        get => _suppliers;
+        set => SetProperty(ref _suppliers, value);
+    }
+
+    public int? SelectedSupplierId
+    {
+        get => _selectedSupplierId;
+        set => SetProperty(ref _selectedSupplierId, value);
+    }
+
+    public DateTime? ExpectedDeliveryDate
+    {
+        get => _expectedDeliveryDate;
+        set => SetProperty(ref _expectedDeliveryDate, value);
+    }
+
+    public string OrderNotes
+    {
+        get => _orderNotes;
+        set => SetProperty(ref _orderNotes, value);
+    }
+
+    public string ProductName
+    {
+        get => _productName;
+        set => SetProperty(ref _productName, value);
+    }
+
+    public decimal Quantity
+    {
+        get => _quantity;
+        set => SetProperty(ref _quantity, value);
+    }
+
+    public decimal UnitPrice
+    {
+        get => _unitPrice;
+        set => SetProperty(ref _unitPrice, value);
     }
 
     public string SearchText
@@ -173,12 +236,6 @@ public class OrdersViewModel : ViewModelBase
         set => SetProperty(ref _newItemQuantity, value);
     }
 
-    public string NewItemUnit
-    {
-        get => _newItemUnit;
-        set => SetProperty(ref _newItemUnit, value);
-    }
-
     public decimal NewItemUnitPrice
     {
         get => _newItemUnitPrice;
@@ -204,6 +261,7 @@ public class OrdersViewModel : ViewModelBase
     public ICommand CancelDialogCommand { get; }
     public AsyncRelayCommand DeleteOrderCommand { get; }
     public ICommand AddItemCommand { get; }
+    public ICommand AddOrderItemCommand { get; }
     public ICommand RemoveItemCommand { get; }
     public AsyncRelayCommand DeliverOrderCommand { get; }
 
@@ -219,10 +277,12 @@ public class OrdersViewModel : ViewModelBase
         CancelDialogCommand = new RelayCommand(_ => CancelDialog());
         DeleteOrderCommand = new AsyncRelayCommand(DeleteOrderAsync);
         AddItemCommand = new RelayCommand(_ => AddItem());
+        AddOrderItemCommand = new RelayCommand(_ => AddOrderItem());
         RemoveItemCommand = new RelayCommand(RemoveItem);
         DeliverOrderCommand = new AsyncRelayCommand(DeliverOrderAsync);
 
         _ = LoadOrdersAsync();
+        _ = LoadSuppliersAsync();
     }
 
     private async Task LoadOrdersAsync()
@@ -375,21 +435,27 @@ public class OrdersViewModel : ViewModelBase
 
     private void AddItem()
     {
+        Log.Information("[VM] AddItem called: ProductName={ProductName}, Quantity={Quantity}, UnitPrice={UnitPrice}", 
+            NewItemProductName, NewItemQuantity, NewItemUnitPrice);
+            
         if (string.IsNullOrWhiteSpace(NewItemProductName) || NewItemQuantity <= 0 || NewItemUnitPrice <= 0)
+        {
+            Log.Warning("[VM] AddItem validation failed");
             return;
+        }
 
         var item = new OrderItem
         {
             ProductName = NewItemProductName,
             Category = NewItemCategory,
             Quantity = NewItemQuantity,
-            Unit = NewItemUnit,
             UnitPrice = NewItemUnitPrice,
             TotalPrice = NewItemQuantity * NewItemUnitPrice,
             ExpiryDate = NewItemExpiryDate
         };
 
         OrderItems.Add(item);
+        Log.Information("[VM] Item added to OrderItems, count={Count}", OrderItems.Count);
 
         // Reset form
         NewItemProductName = string.Empty;
@@ -397,6 +463,8 @@ public class OrdersViewModel : ViewModelBase
         NewItemUnitPrice = 0;
         NewItemExpiryDate = NewItemCategory == "Plat préparé" ? DateTime.Now.AddDays(7) : null;
 
+        OnPropertyChanged(nameof(CurrentOrderItems));
+        OnPropertyChanged(nameof(HasOrderItems));
         OnPropertyChanged(nameof(TotalAmount));
         (SaveOrderCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
     }
@@ -406,6 +474,8 @@ public class OrdersViewModel : ViewModelBase
         if (parameter is OrderItem item)
         {
             OrderItems.Remove(item);
+            OnPropertyChanged(nameof(CurrentOrderItems));
+            OnPropertyChanged(nameof(HasOrderItems));
             OnPropertyChanged(nameof(TotalAmount));
             (SaveOrderCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
         }
@@ -431,8 +501,6 @@ public class OrdersViewModel : ViewModelBase
                             ProductName = item.ProductName,
                             Category = item.Category,
                             Quantity = item.Quantity,
-                            Unit = item.Unit,
-                            UnitCost = item.UnitPrice,
                             MinQuantity = 5, // Valeur par défaut
                             Supplier = order.Supplier,
                             ExpiryDate = item.ExpiryDate,
@@ -458,5 +526,44 @@ public class OrdersViewModel : ViewModelBase
     {
         IsAddEditDialogOpen = false;
         OrderItems.Clear();
+    }
+
+    private async Task LoadSuppliersAsync()
+    {
+        try
+        {
+            // Pour l'instant, utilisons des données locales
+            var localSuppliers = new List<Supplier>
+            {
+                new Supplier { Id = 1, Name = "Boucherie Jackland", ContactPerson = "Zia Jackland", Phone = "555-1001", Email = "jack@boucherie-jackland.com", Address = "123 Meat Street", Notes = "Fournisseur principal de viandes" },
+                new Supplier { Id = 2, Name = "Molienda Hermandad", ContactPerson = "Maria Rodriguez", Phone = "555-1002", Email = "maria@molienda.com", Address = "456 Mill Road", Notes = "Farines et huiles" },
+                new Supplier { Id = 3, Name = "Woods Farm", ContactPerson = "Bob Johnson", Phone = "555-1003", Email = "bob@woodsfarm.com", Address = "789 Farm Lane", Notes = "Légumes, lait, œufs locaux" },
+                new Supplier { Id = 4, Name = "Theronis Harvest", ContactPerson = "Valandor Theronis", Phone = "555-1004", Email = "sarah@theronis.com", Address = "321 Harvest Ave", Notes = "Légumes frais premium" }
+            };
+            
+            Suppliers = new ObservableCollection<Supplier>(localSuppliers);
+            Log.Information($"Loaded {localSuppliers.Count} suppliers");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error loading suppliers");
+        }
+    }
+
+    private void AddOrderItem()
+    {
+        if (string.IsNullOrWhiteSpace(ProductName) || Quantity <= 0 || UnitPrice <= 0)
+        {
+            Log.Warning("Impossible d'ajouter l'article : données manquantes ou invalides");
+            return;
+        }
+
+        // Pour l'instant, on affiche juste un message
+        Log.Information($"Article ajouté : {ProductName} - {Quantity} unités à {UnitPrice}€");
+        
+        // Réinitialiser les champs
+        ProductName = string.Empty;
+        Quantity = 0;
+        UnitPrice = 0;
     }
 }

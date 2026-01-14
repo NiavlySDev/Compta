@@ -1,0 +1,17 @@
+1- La modification des employés et l'ajout ne marchent toujours pas (CA NE SE SAUVEGARDE PAS QUAND JE MODIFIE ET LA CREATION NON PLUS)
+2- Bug d'affichage dans le stock + l'ajout dans le stock ne marche toujours pas
+3- je ne peux toujours pas modifier le stock d'ailleurs
+4- toujours pas d'affichage de ce que j'ai ajouté dans ma commande avant de la confirmer (voir image 2 et 3)
+5- je ne peux toujours pas ajouter de fournisseurs, et je ne vois pas l'affichage des fournisseurs, la liste est vide... (image 4)
+6- Je ne peux pas ajouter de prix d'achat (le bouton ne fais rien) + les fournisseurs ne se chargent pas dans le modal d'ajout + la catégorie est un champ libre de texte pas un choice
+7- pour le prix de vente idem que pour le prix d'achat, en plus ca ne calcule pas la marge...
+7- pour la gestion des remboursements voici les états:
+- Non traité: Compter dans le total a rembourser
+- Accepté: Compter dans le total restant a rembourser mais pas dans la somme remboursée
+- Payée: Ne plus compter dans la somme a rembourser
+- Rejeté: Supprimer la demande
++ le statut ne se mets pas a jout dans l'affichage dans la card mais dans le total de remboursement oui, et je ne peux pa supprimer un remboursement
+8- il n'y a carrément plus de fournisseurs, ils ont étés supprimés de l'affichage ou de la bdd je sais pas, et les boutons ajouter et modifier fournisseur ne marchent toujours pas...
+
+(Fais tout un par un en faisant une todo list)
+Et a partir de maintenant fais des logs, et dès que je te dis que y'a un problème, tu regardes les logs

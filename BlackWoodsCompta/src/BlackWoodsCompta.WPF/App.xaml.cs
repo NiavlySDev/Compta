@@ -104,6 +104,8 @@ public partial class App : Application
         services.AddTransient<InventoryViewModel>();
         services.AddTransient<OrdersViewModel>();
         services.AddTransient<SuppliersViewModel>();
+        services.AddTransient<PurchasePricesViewModel>();
+        services.AddTransient<SalePricesViewModel>();
         services.AddTransient<ReimbursementsViewModel>();
         services.AddTransient<SettingsViewModel>();
 
@@ -117,6 +119,8 @@ public partial class App : Application
         services.AddTransient<InventoryView>();
         services.AddTransient<OrdersView>();
         services.AddTransient<SuppliersView>();
+        services.AddTransient<PurchasePricesView>();
+        services.AddTransient<SalePricesView>();
         services.AddTransient<ReimbursementsView>();
         services.AddTransient<InvoicesView>();
         services.AddTransient<CashRegisterView>();

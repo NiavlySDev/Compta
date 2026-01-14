@@ -80,8 +80,6 @@ public class LocalDataService : IDataService
                 product_name TEXT NOT NULL,
                 category TEXT NOT NULL,
                 quantity REAL NOT NULL,
-                unit TEXT NOT NULL,
-                unit_cost REAL NOT NULL,
                 min_quantity REAL DEFAULT 0,
                 supplier TEXT,
                 expiry_date TEXT,
@@ -121,6 +119,20 @@ public class LocalDataService : IDataService
                 FOREIGN KEY (order_id) REFERENCES orders(id)
             )");
 
+        connection.Execute(@"
+            CREATE TABLE IF NOT EXISTS suppliers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                contact_person TEXT,
+                phone TEXT,
+                email TEXT,
+                address TEXT,
+                notes TEXT,
+                is_active INTEGER DEFAULT 1,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )");
+
         // Migration: Add employee_id column if it doesn't exist
         var columns = connection.Query<string>("PRAGMA table_info(transactions)").Select(c => c).ToList();
         var hasEmployeeId = connection.ExecuteScalar<int>("SELECT COUNT(*) FROM pragma_table_info('transactions') WHERE name='employee_id'") > 0;
@@ -128,6 +140,31 @@ public class LocalDataService : IDataService
         {
             connection.Execute("ALTER TABLE transactions ADD COLUMN employee_id INTEGER");
             Log.Information("Added employee_id column to transactions table");
+        }
+
+        // Migration: Fix invalid category values in inventory
+        try
+        {
+            var invalidCategories = connection.ExecuteScalar<int>(@"
+                SELECT COUNT(*) FROM inventory 
+                WHERE category NOT IN ('Matière première', 'Plat préparé')");
+            
+            if (invalidCategories > 0)
+            {
+                Log.Warning("[DB] Found {Count} inventory items with invalid categories, fixing...", invalidCategories);
+                
+                // Update any invalid category to "Matière première" as default
+                connection.Execute(@"
+                    UPDATE inventory 
+                    SET category = 'Matière première' 
+                    WHERE category NOT IN ('Matière première', 'Plat préparé')");
+                
+                Log.Information("[DB] Fixed {Count} invalid category values", invalidCategories);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "[DB] Error fixing invalid categories");
         }
 
         // Check if default user exists
@@ -148,6 +185,39 @@ public class LocalDataService : IDataService
                 });
 
             Log.Information("Default admin user created for local database");
+        }
+        
+        // Check if default suppliers exist
+        var supplierCount = connection.ExecuteScalar<int>("SELECT COUNT(*) FROM suppliers");
+        if (supplierCount == 0)
+        {
+            var suppliers = new[]
+            {
+                new { Name = "Boucherie Jackland", ContactPerson = "Jack Landry", Phone = "555-0101", Email = "contact@jackland.com", Address = "123 rue de la Viande" },
+                new { Name = "Molienda Hermandad", ContactPerson = "Maria Hernandez", Phone = "555-0102", Email = "info@molienda.com", Address = "456 avenue du Café" },
+                new { Name = "Woods Farm", ContactPerson = "Tom Woods", Phone = "555-0103", Email = "farm@woods.com", Address = "789 chemin Rural" },
+                new { Name = "Theronis Harvest", ContactPerson = "Elena Theronis", Phone = "555-0104", Email = "contact@theronis.com", Address = "321 boulevard des Légumes" },
+                new { Name = "Black Woods", ContactPerson = "John Black", Phone = "555-0105", Email = "info@blackwoods.com", Address = "654 rue du Commerce" }
+            };
+
+            foreach (var supplier in suppliers)
+            {
+                connection.Execute(@"
+                    INSERT INTO suppliers (name, contact_person, phone, email, address, is_active, created_at, updated_at)
+                    VALUES (@Name, @ContactPerson, @Phone, @Email, @Address, 1, @CreatedAt, @UpdatedAt)",
+                    new
+                    {
+                        supplier.Name,
+                        supplier.ContactPerson,
+                        supplier.Phone,
+                        supplier.Email,
+                        supplier.Address,
+                        CreatedAt = DateTime.Now.ToString("O"),
+                        UpdatedAt = DateTime.Now.ToString("O")
+                    });
+            }
+
+            Log.Information("[DB] Default suppliers created: {Count}", suppliers.Length);
         }
     }
 
@@ -185,7 +255,7 @@ public class LocalDataService : IDataService
                     Username = user.username,
                     FullName = user.full_name,
                     Role = user.role,
-                    Email = user.email
+                    Discord = user.discord
                 }
             };
         }
@@ -374,21 +444,26 @@ public class LocalDataService : IDataService
     {
         try
         {
+            Log.Information("[DB] Attempting to create employee: Name={Name}, Position={Position}, Discord={Discord}", 
+                employee.Name, employee.Position, employee.Discord);
+            
             using var connection = new SqliteConnection(_connectionString);
             await connection.OpenAsync();
+            Log.Debug("[DB] Connection opened for CreateEmployeeAsync");
 
             var id = await connection.ExecuteScalarAsync<int>(@"
-                INSERT INTO employees (name, position, salary, hire_date, phone, email)
-                VALUES (@Name, @Position, @Salary, @HireDate, @Phone, @Email);
+                INSERT INTO employees (name, position, salary, hire_date, phone, discord, id_rp)
+                VALUES (@Name, @Position, @Salary, @HireDate, @Phone, @Discord, @IdRp);
                 SELECT last_insert_rowid();",
                 employee);
 
             employee.Id = id;
+            Log.Information("[DB] Employee created successfully with ID={Id}", id);
             return employee;
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error creating employee in local DB");
+            Log.Error(ex, "[DB] Error creating employee in local DB. Name={Name}", employee.Name);
             return null;
         }
     }
@@ -397,22 +472,27 @@ public class LocalDataService : IDataService
     {
         try
         {
+            Log.Information("[DB] Attempting to update employee: ID={Id}, Name={Name}, Position={Position}", 
+                employee.Id, employee.Name, employee.Position);
+            
             using var connection = new SqliteConnection(_connectionString);
             await connection.OpenAsync();
+            Log.Debug("[DB] Connection opened for UpdateEmployeeAsync");
 
-            await connection.ExecuteAsync(@"
+            var rowsAffected = await connection.ExecuteAsync(@"
                 UPDATE employees 
                 SET name = @Name, position = @Position, salary = @Salary, 
-                    hire_date = @HireDate, phone = @Phone, email = @Email,
+                    hire_date = @HireDate, phone = @Phone, discord = @Discord, id_rp = @IdRp,
                     is_active = @IsActive, updated_at = CURRENT_TIMESTAMP
                 WHERE id = @Id",
                 employee);
 
-            return true;
+            Log.Information("[DB] Employee update complete. ID={Id}, RowsAffected={RowsAffected}", employee.Id, rowsAffected);
+            return rowsAffected > 0;
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error updating employee in local DB");
+            Log.Error(ex, "[DB] Error updating employee in local DB. ID={Id}, Name={Name}", employee.Id, employee.Name);
             return false;
         }
     }
@@ -539,8 +619,10 @@ public class LocalDataService : IDataService
     {
         try
         {
+            Log.Information("[DB] Attempting to get inventory items: Search={Search}, Category={Category}, LowStock={LowStock}", search, category, lowStock);
             using var connection = new SqliteConnection(_connectionString);
             await connection.OpenAsync();
+            Log.Debug("[DB] Database connection opened");
 
             var query = "SELECT * FROM inventory WHERE 1=1";
             var parameters = new DynamicParameters();
@@ -565,6 +647,15 @@ public class LocalDataService : IDataService
             query += " ORDER BY product_name";
 
             var items = await connection.QueryAsync<InventoryItem>(query, parameters);
+            Log.Information("[DB] Successfully retrieved {Count} inventory items", items.Count());
+            
+            // Log les 3 premiers items pour debug
+            foreach (var item in items.Take(3))
+            {
+                Log.Debug("[DB] Item sample: Id={Id}, Name={Name}, Category={Category}, Quantity={Quantity}", 
+                    item.Id, item.ProductName, item.Category, item.Quantity);
+            }
+            
             return items.ToList();
         }
         catch (Exception ex)
@@ -578,16 +669,20 @@ public class LocalDataService : IDataService
     {
         try
         {
+            Log.Information("[DB] Attempting to create inventory item: Name={Name}, Category={Category}, Quantity={Quantity}", 
+                item.ProductName, item.Category, item.Quantity);
             using var connection = new SqliteConnection(_connectionString);
             await connection.OpenAsync();
+            Log.Debug("[DB] Database connection opened");
 
             var id = await connection.ExecuteScalarAsync<long>(@"
-                INSERT INTO inventory (product_name, category, quantity, unit, unit_cost, min_quantity, supplier)
-                VALUES (@ProductName, @Category, @Quantity, @Unit, @UnitCost, @MinQuantity, @Supplier);
+                INSERT INTO inventory (product_name, category, quantity, min_quantity, supplier, expiry_date, created_at, updated_at)
+                VALUES (@ProductName, @Category, @Quantity, @MinQuantity, @Supplier, @ExpiryDate, @CreatedAt, @UpdatedAt);
                 SELECT last_insert_rowid();",
                 item);
 
             item.Id = Convert.ToInt32(id);
+            Log.Information("[DB] Successfully created inventory item with ID={Id}", item.Id);
             return item;
         }
         catch (Exception ex)
@@ -601,18 +696,22 @@ public class LocalDataService : IDataService
     {
         try
         {
+            Log.Information("[DB] Attempting to update inventory item: Id={Id}, Name={Name}, Category={Category}, Quantity={Quantity}", 
+                item.Id, item.ProductName, item.Category, item.Quantity);
             using var connection = new SqliteConnection(_connectionString);
             await connection.OpenAsync();
+            Log.Debug("[DB] Database connection opened");
 
-            await connection.ExecuteAsync(@"
+            var rowsAffected = await connection.ExecuteAsync(@"
                 UPDATE inventory 
                 SET product_name = @ProductName, category = @Category, quantity = @Quantity,
-                    unit = @Unit, unit_cost = @UnitCost, min_quantity = @MinQuantity,
-                    supplier = @Supplier, updated_at = CURRENT_TIMESTAMP
+                    min_quantity = @MinQuantity,
+                    supplier = @Supplier, expiry_date = @ExpiryDate, updated_at = @UpdatedAt
                 WHERE id = @Id",
                 item);
 
-            return true;
+            Log.Information("[DB] Successfully updated inventory item, rows affected: {RowsAffected}", rowsAffected);
+            return rowsAffected > 0;
         }
         catch (Exception ex)
         {
@@ -1102,6 +1201,126 @@ public class LocalDataService : IDataService
         {
             Log.Error(ex, "Error getting order items from local DB");
             return new List<OrderItem>();
+        }
+    }
+
+    // Supplier methods
+    public async Task<List<Supplier>> GetSuppliersAsync(string? search = null)
+    {
+        try
+        {
+            Log.Information("[DB] Attempting to get suppliers: Search={Search}", search);
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+            Log.Debug("[DB] Database connection opened");
+
+            var query = "SELECT * FROM suppliers WHERE 1=1";
+            var parameters = new DynamicParameters();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query += " AND (name LIKE @Search OR contact_person LIKE @Search OR email LIKE @Search OR phone LIKE @Search)";
+                parameters.Add("Search", $"%{search}%");
+            }
+
+            query += " ORDER BY name";
+
+            var suppliers = await connection.QueryAsync<Supplier>(query, parameters);
+            Log.Information("[DB] Successfully retrieved {Count} suppliers", suppliers.Count());
+            return suppliers.ToList();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error getting suppliers from local DB");
+            return new List<Supplier>();
+        }
+    }
+
+    public async Task<Supplier?> CreateSupplierAsync(Supplier supplier)
+    {
+        try
+        {
+            Log.Information("[DB] Attempting to create supplier: Name={Name}", supplier.Name);
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+            Log.Debug("[DB] Database connection opened");
+
+            var id = await connection.ExecuteScalarAsync<long>(@"
+                INSERT INTO suppliers (name, contact_person, phone, email, address, notes, is_active, created_at, updated_at)
+                VALUES (@Name, @ContactPerson, @Phone, @Email, @Address, @Notes, @IsActive, @CreatedAt, @UpdatedAt);
+                SELECT last_insert_rowid();",
+                new
+                {
+                    supplier.Name,
+                    supplier.ContactPerson,
+                    supplier.Phone,
+                    supplier.Email,
+                    supplier.Address,
+                    supplier.Notes,
+                    IsActive = supplier.IsActive ? 1 : 0,
+                    CreatedAt = DateTime.Now.ToString("O"),
+                    UpdatedAt = DateTime.Now.ToString("O")
+                });
+
+            supplier.Id = Convert.ToInt32(id);
+            Log.Information("[DB] Successfully created supplier with ID={Id}", supplier.Id);
+            return supplier;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error creating supplier in local DB");
+            return null;
+        }
+    }
+
+    public async Task<bool> UpdateSupplierAsync(Supplier supplier)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            await connection.ExecuteAsync(@"
+                UPDATE suppliers 
+                SET name = @Name, contact_person = @ContactPerson, phone = @Phone, email = @Email,
+                    address = @Address, notes = @Notes, is_active = @IsActive, updated_at = @UpdatedAt
+                WHERE id = @Id",
+                new
+                {
+                    supplier.Id,
+                    supplier.Name,
+                    supplier.ContactPerson,
+                    supplier.Phone,
+                    supplier.Email,
+                    supplier.Address,
+                    supplier.Notes,
+                    IsActive = supplier.IsActive ? 1 : 0,
+                    UpdatedAt = DateTime.Now.ToString("O")
+                });
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error updating supplier in local DB");
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteSupplierAsync(int id)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            await connection.ExecuteAsync("DELETE FROM suppliers WHERE id = @Id", new { Id = id });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error deleting supplier from local DB");
+            return false;
         }
     }
 }

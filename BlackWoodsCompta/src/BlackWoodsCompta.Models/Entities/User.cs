@@ -9,7 +9,8 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
     public UserRole Role { get; set; }
     public string FullName { get; set; } = string.Empty;
-    public string? Email { get; set; }
+    public string? Discord { get; set; }
+    public string? IdRp { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
