@@ -10,3 +10,15 @@ C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoods
 C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\BlackWoodsCompta.Models.pdb
 C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\ref\BlackWoodsCompta.Models.dll
 C:\Users\Sylvain - Travail\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\BlackWoodsCompta.Models.sourcelink.json
+C:\Users\NiavlyS\Documents\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\bin\Debug\net8.0\BlackWoodsCompta.Models.deps.json
+C:\Users\NiavlyS\Documents\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\bin\Debug\net8.0\BlackWoodsCompta.Models.dll
+C:\Users\NiavlyS\Documents\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\bin\Debug\net8.0\BlackWoodsCompta.Models.pdb
+C:\Users\NiavlyS\Documents\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\BlackWoodsCompta.Models.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\NiavlyS\Documents\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\BlackWoodsCompta.Models.AssemblyInfoInputs.cache
+C:\Users\NiavlyS\Documents\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\BlackWoodsCompta.Models.AssemblyInfo.cs
+C:\Users\NiavlyS\Documents\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\BlackWoodsCompta.Models.csproj.CoreCompileInputs.cache
+C:\Users\NiavlyS\Documents\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\BlackWoodsCompta.Models.sourcelink.json
+C:\Users\NiavlyS\Documents\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\BlackWoodsCompta.Models.dll
+C:\Users\NiavlyS\Documents\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\refint\BlackWoodsCompta.Models.dll
+C:\Users\NiavlyS\Documents\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\BlackWoodsCompta.Models.pdb
+C:\Users\NiavlyS\Documents\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.Models\obj\Debug\net8.0\ref\BlackWoodsCompta.Models.dll

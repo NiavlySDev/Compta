@@ -166,30 +166,9 @@ public class PurchasePricesViewModel : ViewModelBase
         try
         {
             IsLoading = true;
-            
-            // Données locales pour la démo
-            var localPrices = new List<PurchasePrice>
-            {
-                new PurchasePrice { Id = 1, ProductName = "Steak de bœuf", Category = "Viandes", UnitPrice = 90.00m, Supplier = "Boucherie Jackland", LastUpdated = DateTime.Now.AddDays(-2) },
-                new PurchasePrice { Id = 2, ProductName = "Farine de blé", Category = "Ingrédients", UnitPrice = 80.00m, Supplier = "Molienda Hermandad", LastUpdated = DateTime.Now.AddDays(-5) },
-                new PurchasePrice { Id = 3, ProductName = "Oignon", Category = "Légumes", UnitPrice = 10.00m, Supplier = "Woods Farm", LastUpdated = DateTime.Now.AddDays(-1) },
-                new PurchasePrice { Id = 4, ProductName = "Tomate", Category = "Légumes", UnitPrice = 20.00m, Supplier = "Theronis Harvest", LastUpdated = DateTime.Now.AddDays(-3) },
-                new PurchasePrice { Id = 5, ProductName = "Lait", Category = "Produits Laitiers", UnitPrice = 20.00m, Supplier = "Woods Farm", LastUpdated = DateTime.Now.AddDays(-1) }
-            };
-            
-            // Appliquer les filtres
-            if (!string.IsNullOrEmpty(SearchText))
-                localPrices = localPrices.Where(p => p.ProductName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) || 
-                                                    p.Supplier.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
-            
-            if (!string.IsNullOrEmpty(FilterCategory))
-                localPrices = localPrices.Where(p => p.Category == FilterCategory).ToList();
-            
-            if (!string.IsNullOrEmpty(FilterSupplier))
-                localPrices = localPrices.Where(p => p.Supplier == FilterSupplier).ToList();
-
-            PurchasePrices = new ObservableCollection<PurchasePrice>(localPrices);
-            Log.Information($"Loaded {localPrices.Count} purchase prices");
+            var prices = await _dataService.GetPurchasePricesAsync(SearchText, FilterCategory, FilterSupplier);
+            PurchasePrices = new ObservableCollection<PurchasePrice>(prices);
+            Log.Information($"Loaded {prices.Count} purchase prices");
         }
         catch (Exception ex)
         {

@@ -30,7 +30,9 @@ public class LocalDataService : IDataService
         using var connection = new SqliteConnection(_connectionString);
         connection.Open();
 
-        // Create tables
+        Log.Information("[DB] Initializing local SQLite database with schema matching MySQL...");
+
+        // Create tables with same structure as MySQL schema
         connection.Execute(@"
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +40,23 @@ public class LocalDataService : IDataService
                 password_hash TEXT NOT NULL,
                 role TEXT NOT NULL,
                 full_name TEXT NOT NULL,
-                email TEXT,
+                discord TEXT,
+                id_rp TEXT,
+                is_active INTEGER DEFAULT 1,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )");
+
+        connection.Execute(@"
+            CREATE TABLE IF NOT EXISTS employees (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                position TEXT NOT NULL,
+                salary REAL NOT NULL,
+                hire_date TEXT NOT NULL,
+                phone TEXT,
+                discord TEXT,
+                id_rp TEXT,
                 is_active INTEGER DEFAULT 1,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
@@ -61,17 +79,18 @@ public class LocalDataService : IDataService
             )");
 
         connection.Execute(@"
-            CREATE TABLE IF NOT EXISTS employees (
+            CREATE TABLE IF NOT EXISTS payrolls (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                position TEXT NOT NULL,
-                salary REAL NOT NULL,
-                hire_date TEXT NOT NULL,
-                phone TEXT,
-                email TEXT,
-                is_active INTEGER DEFAULT 1,
+                employee_id INTEGER NOT NULL,
+                amount REAL NOT NULL,
+                period_start TEXT NOT NULL,
+                period_end TEXT NOT NULL,
+                paid_date TEXT NOT NULL,
+                notes TEXT,
+                created_by INTEGER NOT NULL,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+                FOREIGN KEY (employee_id) REFERENCES employees(id),
+                FOREIGN KEY (created_by) REFERENCES users(id)
             )");
 
         connection.Execute(@"
@@ -80,9 +99,68 @@ public class LocalDataService : IDataService
                 product_name TEXT NOT NULL,
                 category TEXT NOT NULL,
                 quantity REAL NOT NULL,
-                min_quantity REAL DEFAULT 0,
+                unit TEXT NOT NULL,
+                unit_price REAL NOT NULL,
+                low_stock_threshold REAL DEFAULT 0,
                 supplier TEXT,
                 expiry_date TEXT,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )");
+
+        connection.Execute(@"
+            CREATE TABLE IF NOT EXISTS inventory_movements (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                product_id INTEGER NOT NULL,
+                quantity REAL NOT NULL,
+                type TEXT NOT NULL,
+                reason TEXT,
+                user_id INTEGER NOT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (product_id) REFERENCES inventory(id),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )");
+
+        connection.Execute(@"
+            CREATE TABLE IF NOT EXISTS invoices (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                invoice_number TEXT UNIQUE NOT NULL,
+                client_name TEXT NOT NULL,
+                client_phone TEXT,
+                client_email TEXT,
+                total_amount REAL NOT NULL,
+                status TEXT NOT NULL,
+                issue_date TEXT NOT NULL,
+                due_date TEXT,
+                notes TEXT,
+                created_by INTEGER NOT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            )");
+
+        connection.Execute(@"
+            CREATE TABLE IF NOT EXISTS invoice_items (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                invoice_id INTEGER NOT NULL,
+                description TEXT NOT NULL,
+                quantity REAL NOT NULL,
+                unit_price REAL NOT NULL,
+                total_price REAL NOT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE
+            )");
+
+        connection.Execute(@"
+            CREATE TABLE IF NOT EXISTS suppliers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                contact_person TEXT,
+                phone TEXT,
+                email TEXT,
+                address TEXT,
+                notes TEXT,
+                is_active INTEGER DEFAULT 1,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             )");
@@ -116,56 +194,61 @@ public class LocalDataService : IDataService
                 unit_price REAL NOT NULL,
                 total_price REAL NOT NULL,
                 expiry_date TEXT,
-                FOREIGN KEY (order_id) REFERENCES orders(id)
+                FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
             )");
 
         connection.Execute(@"
-            CREATE TABLE IF NOT EXISTS suppliers (
+            CREATE TABLE IF NOT EXISTS employee_reimbursements (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                contact_person TEXT,
-                phone TEXT,
-                email TEXT,
-                address TEXT,
+                employee_id INTEGER NOT NULL,
+                amount REAL NOT NULL,
+                description TEXT,
+                request_date TEXT DEFAULT CURRENT_TIMESTAMP,
+                approved_date TEXT,
+                paid_date TEXT,
+                status TEXT DEFAULT 'En_Attente',
+                transaction_ids TEXT,
                 notes TEXT,
-                is_active INTEGER DEFAULT 1,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (employee_id) REFERENCES employees(id)
             )");
 
-        // Migration: Add employee_id column if it doesn't exist
-        var columns = connection.Query<string>("PRAGMA table_info(transactions)").Select(c => c).ToList();
-        var hasEmployeeId = connection.ExecuteScalar<int>("SELECT COUNT(*) FROM pragma_table_info('transactions') WHERE name='employee_id'") > 0;
-        if (!hasEmployeeId)
-        {
-            connection.Execute("ALTER TABLE transactions ADD COLUMN employee_id INTEGER");
-            Log.Information("Added employee_id column to transactions table");
-        }
+        connection.Execute(@"
+            CREATE TABLE IF NOT EXISTS purchase_prices (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                product_name TEXT NOT NULL,
+                supplier_name TEXT NOT NULL,
+                unit_price REAL NOT NULL,
+                effective_date TEXT NOT NULL,
+                is_current INTEGER DEFAULT 1,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )");
 
-        // Migration: Fix invalid category values in inventory
-        try
-        {
-            var invalidCategories = connection.ExecuteScalar<int>(@"
-                SELECT COUNT(*) FROM inventory 
-                WHERE category NOT IN ('Matière première', 'Plat préparé')");
-            
-            if (invalidCategories > 0)
-            {
-                Log.Warning("[DB] Found {Count} inventory items with invalid categories, fixing...", invalidCategories);
-                
-                // Update any invalid category to "Matière première" as default
-                connection.Execute(@"
-                    UPDATE inventory 
-                    SET category = 'Matière première' 
-                    WHERE category NOT IN ('Matière première', 'Plat préparé')");
-                
-                Log.Information("[DB] Fixed {Count} invalid category values", invalidCategories);
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "[DB] Error fixing invalid categories");
-        }
+        connection.Execute(@"
+            CREATE TABLE IF NOT EXISTS sale_prices (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                product_name TEXT NOT NULL,
+                unit_price REAL NOT NULL,
+                effective_date TEXT NOT NULL,
+                is_current INTEGER DEFAULT 1,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )");
+
+        connection.Execute(@"
+            CREATE TABLE IF NOT EXISTS audit_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                action TEXT NOT NULL,
+                entity TEXT NOT NULL,
+                entity_id INTEGER,
+                details TEXT,
+                ip_address TEXT,
+                timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )");
+
+        Log.Information("[DB] All tables created/verified successfully");
 
         // Check if default user exists
         var userCount = connection.ExecuteScalar<int>("SELECT COUNT(*) FROM users");
@@ -173,18 +256,19 @@ public class LocalDataService : IDataService
         {
             // Create default admin user (password: admin123)
             connection.Execute(@"
-                INSERT INTO users (username, password_hash, role, full_name, email)
-                VALUES (@Username, @PasswordHash, @Role, @FullName, @Email)",
+                INSERT INTO users (username, password_hash, role, full_name, discord, id_rp)
+                VALUES (@Username, @PasswordHash, @Role, @FullName, @Discord, @IdRp)",
                 new
                 {
                     Username = "admin",
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
                     Role = "Admin",
                     FullName = "Administrateur Local",
-                    Email = "admin@blackwoods.local"
+                    Discord = "",
+                    IdRp = ""
                 });
 
-            Log.Information("Default admin user created for local database");
+            Log.Information("[DB] Default admin user created (username: admin, password: admin123)");
         }
         
         // Check if default suppliers exist
@@ -255,7 +339,7 @@ public class LocalDataService : IDataService
                     Username = user.username,
                     FullName = user.full_name,
                     Role = user.role,
-                    Discord = user.discord
+                    Discord = user.discord ?? string.Empty
                 }
             };
         }
@@ -641,7 +725,7 @@ public class LocalDataService : IDataService
 
             if (lowStock == true)
             {
-                query += " AND quantity <= min_quantity";
+                query += " AND quantity <= low_stock_threshold";
             }
 
             query += " ORDER BY product_name";
@@ -676,8 +760,8 @@ public class LocalDataService : IDataService
             Log.Debug("[DB] Database connection opened");
 
             var id = await connection.ExecuteScalarAsync<long>(@"
-                INSERT INTO inventory (product_name, category, quantity, min_quantity, supplier, expiry_date, created_at, updated_at)
-                VALUES (@ProductName, @Category, @Quantity, @MinQuantity, @Supplier, @ExpiryDate, @CreatedAt, @UpdatedAt);
+                INSERT INTO inventory (product_name, category, quantity, unit, unit_price, low_stock_threshold, supplier, expiry_date, created_at, updated_at)
+                VALUES (@ProductName, @Category, @Quantity, @Unit, @UnitPrice, @LowStockThreshold, @Supplier, @ExpiryDate, @CreatedAt, @UpdatedAt);
                 SELECT last_insert_rowid();",
                 item);
 
@@ -705,7 +789,7 @@ public class LocalDataService : IDataService
             var rowsAffected = await connection.ExecuteAsync(@"
                 UPDATE inventory 
                 SET product_name = @ProductName, category = @Category, quantity = @Quantity,
-                    min_quantity = @MinQuantity,
+                    unit = @Unit, unit_price = @UnitPrice, low_stock_threshold = @LowStockThreshold,
                     supplier = @Supplier, expiry_date = @ExpiryDate, updated_at = @UpdatedAt
                 WHERE id = @Id",
                 item);
@@ -1320,6 +1404,323 @@ public class LocalDataService : IDataService
         catch (Exception ex)
         {
             Log.Error(ex, "Error deleting supplier from local DB");
+            return false;
+        }
+    }
+
+    // Purchase Prices
+    public async Task<List<PurchasePrice>> GetPurchasePricesAsync(string? search = null, string? category = null, string? supplier = null)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = "SELECT * FROM purchase_prices WHERE 1=1";
+            var parameters = new DynamicParameters();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query += " AND (product_name LIKE @Search OR supplier LIKE @Search)";
+                parameters.Add("Search", $"%{search}%");
+            }
+
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                query += " AND category = @Category";
+                parameters.Add("Category", category);
+            }
+
+            if (!string.IsNullOrWhiteSpace(supplier))
+            {
+                query += " AND supplier = @Supplier";
+                parameters.Add("Supplier", supplier);
+            }
+
+            query += " ORDER BY product_name";
+
+            var prices = await connection.QueryAsync<PurchasePrice>(query, parameters);
+            return prices.ToList();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error getting purchase prices from local DB");
+            return new List<PurchasePrice>();
+        }
+    }
+
+    public async Task<PurchasePrice?> CreatePurchasePriceAsync(PurchasePrice price)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var id = await connection.ExecuteScalarAsync<long>(@"
+                INSERT INTO purchase_prices (product_name, category, unit_price, supplier, last_updated)
+                VALUES (@ProductName, @Category, @UnitPrice, @Supplier, @LastUpdated);
+                SELECT last_insert_rowid();",
+                price);
+
+            price.Id = Convert.ToInt32(id);
+            return price;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error creating purchase price in local DB");
+            return null;
+        }
+    }
+
+    public async Task<bool> UpdatePurchasePriceAsync(PurchasePrice price)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            await connection.ExecuteAsync(@"
+                UPDATE purchase_prices 
+                SET product_name = @ProductName, category = @Category, unit_price = @UnitPrice,
+                    supplier = @Supplier, last_updated = @LastUpdated
+                WHERE id = @Id",
+                price);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error updating purchase price in local DB");
+            return false;
+        }
+    }
+
+    public async Task<bool> DeletePurchasePriceAsync(int id)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            await connection.ExecuteAsync("DELETE FROM purchase_prices WHERE id = @Id", new { Id = id });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error deleting purchase price from local DB");
+            return false;
+        }
+    }
+
+    // Sale Prices
+    public async Task<List<SalePrice>> GetSalePricesAsync(string? search = null, string? category = null)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = "SELECT * FROM sale_prices WHERE 1=1";
+            var parameters = new DynamicParameters();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query += " AND (product_name LIKE @Search OR description LIKE @Search)";
+                parameters.Add("Search", $"%{search}%");
+            }
+
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                query += " AND category = @Category";
+                parameters.Add("Category", category);
+            }
+
+            query += " ORDER BY product_name";
+
+            var prices = await connection.QueryAsync<SalePrice>(query, parameters);
+            return prices.ToList();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error getting sale prices from local DB");
+            return new List<SalePrice>();
+        }
+    }
+
+    public async Task<SalePrice?> CreateSalePriceAsync(SalePrice price)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var id = await connection.ExecuteScalarAsync<long>(@"
+                INSERT INTO sale_prices (product_name, category, price, cost, margin, description, last_updated)
+                VALUES (@ProductName, @Category, @Price, @Cost, @Margin, @Description, @LastUpdated);
+                SELECT last_insert_rowid();",
+                price);
+
+            price.Id = Convert.ToInt32(id);
+            return price;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error creating sale price in local DB");
+            return null;
+        }
+    }
+
+    public async Task<bool> UpdateSalePriceAsync(SalePrice price)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            await connection.ExecuteAsync(@"
+                UPDATE sale_prices 
+                SET product_name = @ProductName, category = @Category, price = @Price,
+                    cost = @Cost, margin = @Margin, description = @Description, last_updated = @LastUpdated
+                WHERE id = @Id",
+                price);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error updating sale price in local DB");
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteSalePriceAsync(int id)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            await connection.ExecuteAsync("DELETE FROM sale_prices WHERE id = @Id", new { Id = id });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error deleting sale price from local DB");
+            return false;
+        }
+    }
+
+    // Employee Reimbursements
+    public async Task<List<EmployeeReimbursement>> GetEmployeeReimbursementsAsync(string? search = null, string? status = null)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var query = @"
+                SELECT r.*, e.name as EmployeeName, e.position as EmployeePosition
+                FROM employee_reimbursements r
+                LEFT JOIN employees e ON r.employee_id = e.id
+                WHERE 1=1";
+            var parameters = new DynamicParameters();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query += " AND (r.description LIKE @Search OR r.notes LIKE @Search OR e.name LIKE @Search)";
+                parameters.Add("Search", $"%{search}%");
+            }
+
+            if (!string.IsNullOrWhiteSpace(status) && status != "Tous")
+            {
+                query += " AND r.status = @Status";
+                parameters.Add("Status", status);
+            }
+
+            query += " ORDER BY r.request_date DESC";
+
+            var reimbursements = await connection.QueryAsync<EmployeeReimbursement>(query, parameters);
+            
+            // Charger les employés
+            foreach (var r in reimbursements)
+            {
+                var employee = await connection.QueryFirstOrDefaultAsync<Employee>(
+                    "SELECT * FROM employees WHERE id = @Id", new { Id = r.EmployeeId });
+                r.Employee = employee;
+            }
+            
+            return reimbursements.ToList();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error getting employee reimbursements from local DB");
+            return new List<EmployeeReimbursement>();
+        }
+    }
+
+    public async Task<EmployeeReimbursement?> CreateEmployeeReimbursementAsync(EmployeeReimbursement reimbursement)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var id = await connection.ExecuteScalarAsync<long>(@"
+                INSERT INTO employee_reimbursements (employee_id, description, amount, request_date, status, notes, created_at, updated_at)
+                VALUES (@EmployeeId, @Description, @Amount, @RequestDate, @Status, @Notes, @CreatedAt, @UpdatedAt);
+                SELECT last_insert_rowid();",
+                reimbursement);
+
+            reimbursement.Id = Convert.ToInt32(id);
+            Log.Information("[DB] Created employee reimbursement with ID={Id}", id);
+            return reimbursement;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error creating employee reimbursement in local DB");
+            return null;
+        }
+    }
+
+    public async Task<bool> UpdateEmployeeReimbursementAsync(EmployeeReimbursement reimbursement)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            await connection.ExecuteAsync(@"
+                UPDATE employee_reimbursements 
+                SET employee_id = @EmployeeId, description = @Description, amount = @Amount,
+                    request_date = @RequestDate, approved_date = @ApprovedDate, paid_date = @PaidDate,
+                    status = @Status, notes = @Notes, updated_at = @UpdatedAt
+                WHERE id = @Id",
+                reimbursement);
+
+            Log.Information("[DB] Updated employee reimbursement ID={Id}", reimbursement.Id);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error updating employee reimbursement in local DB");
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteEmployeeReimbursementAsync(int id)
+    {
+        try
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            await connection.ExecuteAsync("DELETE FROM employee_reimbursements WHERE id = @Id", new { Id = id });
+            Log.Information("[DB] Deleted employee reimbursement ID={Id}", id);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error deleting employee reimbursement from local DB");
             return false;
         }
     }

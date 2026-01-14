@@ -55,4 +55,22 @@ public interface IDataService
     Task<Supplier?> CreateSupplierAsync(Supplier supplier);
     Task<bool> UpdateSupplierAsync(Supplier supplier);
     Task<bool> DeleteSupplierAsync(int id);
+    
+    // Purchase Prices
+    Task<List<PurchasePrice>> GetPurchasePricesAsync(string? search = null, string? category = null, string? supplier = null);
+    Task<PurchasePrice?> CreatePurchasePriceAsync(PurchasePrice price);
+    Task<bool> UpdatePurchasePriceAsync(PurchasePrice price);
+    Task<bool> DeletePurchasePriceAsync(int id);
+    
+    // Sale Prices
+    Task<List<SalePrice>> GetSalePricesAsync(string? search = null, string? category = null);
+    Task<SalePrice?> CreateSalePriceAsync(SalePrice price);
+    Task<bool> UpdateSalePriceAsync(SalePrice price);
+    Task<bool> DeleteSalePriceAsync(int id);
+    
+    // Employee Reimbursements
+    Task<List<EmployeeReimbursement>> GetEmployeeReimbursementsAsync(string? search = null, string? status = null);
+    Task<EmployeeReimbursement?> CreateEmployeeReimbursementAsync(EmployeeReimbursement reimbursement);
+    Task<bool> UpdateEmployeeReimbursementAsync(EmployeeReimbursement reimbursement);
+    Task<bool> DeleteEmployeeReimbursementAsync(int id);
 }

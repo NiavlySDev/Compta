@@ -1,5 +1,22 @@
 # 🎯 PROMPT FINAL POUR APPLICATION DE COMPTABILITÉ BLACKWOODS
 
+> ⚠️ **IMPORTANT** : Ce fichier contient les prompts initiaux du projet.  
+> Pour la documentation à jour et organisée, consultez le **[Wiki du projet](wiki/INDEX.md)** 📚
+
+---
+
+## 📚 Navigation Rapide vers le Wiki
+
+- 🏠 **[Accueil du Wiki](wiki/INDEX.md)** - Page d'accueil
+- 🎯 **[Philosophie de Développement](wiki/PHILOSOPHIE.md)** - Principes et méthodologie
+- 📋 **[Description Générale](wiki/DESCRIPTION.md)** - Architecture et fonctionnalités
+- 🔄 **[Journal des Changements](wiki/CHANGEMENTS.md)** - Historique des modifications
+- 🐛 **[Problèmes & Résolutions](wiki/PROBLEMES.md)** - Suivi des bugs
+
+---
+
+# 🎯 PROMPT INITIAL (Historique)
+
 ## Contexte
 Créer une application Windows native (.exe) de comptabilité pour le restaurant "BlackWoods" dans un contexte GTA RP, avec un installateur professionnel.
 
@@ -403,6 +420,112 @@ BlackWoodsCompta/
 6. 📦 Configuration de l'installateur
 7. 📝 Rédaction de la documentation
 8. ✅ Tests et validation
+
+---
+
+## 📋 PHILOSOPHIE DE DÉVELOPPEMENT (14 Janvier 2026)
+
+### Principes adoptés :
+1. **Logging exhaustif** : Ajouter des logs à chaque étape critique pour faciliter le debug
+2. **Vérification des logs** : Consulter systématiquement les logs avant toute correction
+3. **Documentation continue** : Tout changement doit être documenté ici étape par étape
+4. **Build incrémental** : Vérifier que le projet compile après chaque modification
+
+---
+
+## 🔄 JOURNAL DES MODIFICATIONS
+
+### Session du 14 Janvier 2026 - Transfert GitHub & Setup Initial
+
+#### ✅ Étape 1 : Analyse du projet après transfert GitHub
+**Date** : 14/01/2026 - 14:00
+**Action** : Lecture complète des fichiers de documentation (.md) et analyse de la structure
+**Fichiers consultés** :
+- `/README.md` - Introduction générale
+- `/BlackWoodsCompta/README.md` - Documentation principale
+- `/BlackWoodsCompta/QUICK_START.md` - Guide de démarrage rapide
+- `/BlackWoodsCompta/PROJECT_SUMMARY.md` - Résumé du projet
+- `/BlackWoodsCompta/docs/technical-doc.md` - Documentation technique
+- `/BlackWoodsCompta/src/BlackWoodsCompta.WPF/BlackWoodsCompta.WPF.csproj` - Configuration du projet
+
+**Résultat** : 
+- Projet WPF .NET 8 avec architecture MVVM complète
+- Base de données SQLite locale intégrée (pas besoin de MySQL pour démarrer)
+- Mode hybride : choix entre base locale ou API distante
+- 16 Views et ViewModels implémentés
+- 7 Services créés
+
+#### ✅ Étape 2 : Restauration des packages NuGet
+**Date** : 14/01/2026 - 14:05
+**Commande** : `dotnet restore`
+**Répertoire** : `c:\Users\NiavlyS\Documents\Coding\Windows\Compta\BlackWoodsCompta\src`
+
+**Résultat** :
+```
+✅ Restauration effectuée avec succès
+⚠️  Warning NU1902: RestSharp 111.2.0 a une vulnérabilité de sécurité moyenne
+   → À considérer pour une mise à jour future
+```
+
+**Packages installés** :
+- MaterialDesignThemes 5.0.0
+- MaterialDesignColors 3.0.0
+- Newtonsoft.Json 13.0.3
+- RestSharp 111.2.0 (⚠️ vulnérabilité)
+- BCrypt.Net-Next 4.0.3
+- LiveChartsCore.SkiaSharpView.WPF 2.0.0-rc2
+- PdfSharp 6.1.0
+- ClosedXML 0.102.2
+- Serilog 3.1.1 + Serilog.Sinks.File 5.0.0
+- Microsoft.Extensions.DependencyInjection 8.0.0
+- Microsoft.Data.Sqlite 8.0.0
+- Dapper 2.1.28
+
+#### ✅ Étape 3 : Build et lancement du projet
+**Date** : 14/01/2026 - 14:10
+**Commande** : `dotnet run`
+**Répertoire** : `c:\Users\NiavlyS\Documents\Coding\Windows\Compta\BlackWoodsCompta\src\BlackWoodsCompta.WPF`
+
+**Résultat de la compilation** :
+```
+✅ Build réussi - Application lancée
+⚠️  3 Warnings CS1998: Méthodes async sans await
+   - SalePricesViewModel.cs ligne 151
+   - PurchasePricesViewModel.cs ligne 164
+   - OrdersViewModel.cs ligne 531
+⚠️  1 Warning CS8602: Déréférencement possible d'une référence null
+   - TransactionsViewModel.cs ligne 203
+```
+
+**État** : 
+- ✅ Application opérationnelle
+- ✅ Fenêtre de sélection de base de données s'affiche
+- ✅ Mode local (SQLite) fonctionnel
+- ⚠️ Warnings mineurs à corriger (non bloquants)
+
+#### 📝 Étape 4 : Adoption de la nouvelle philosophie
+**Date** : 14/01/2026 - 14:15
+**Action** : Documentation de la philosophie de développement et du journal des modifications
+
+**Prochaines actions recommandées** :
+1. ✅ Tester le login avec la base locale
+2. ⚠️ Corriger les warnings de nullabilité
+3. ⚠️ Ajouter des logs dans les services critiques
+4. ⚠️ Considérer mise à jour de RestSharp pour la sécurité
+5. 📊 Vérifier le fonctionnement de toutes les vues
+
+**Localisation des logs applicatifs** :
+```
+%APPDATA%\BlackWoodsCompta\Logs\app20260114.log
+```
+*Note : Le fichier de log contient la date du jour (format YYYYMMDD) et change quotidiennement*
+
+**Procédure de débogage** :
+1. Consulter les logs en priorité lors d'un problème
+2. Documenter l'erreur dans ce fichier ia.md
+3. Appliquer la correction
+4. Vérifier que le build passe
+5. Documenter la résolution
 
 ---
 

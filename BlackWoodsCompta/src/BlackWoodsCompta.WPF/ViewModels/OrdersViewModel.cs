@@ -340,22 +340,35 @@ public class OrdersViewModel : ViewModelBase
 
     private bool CanSaveOrder()
     {
-        return !string.IsNullOrWhiteSpace(NewOrderNumber) && !string.IsNullOrWhiteSpace(NewSupplier) && OrderItems.Any();
+        return SelectedSupplierId.HasValue && OrderItems.Any();
     }
 
     private async Task SaveOrderAsync(object? parameter = null)
     {
         try
         {
+            // Générer numéro de commande automatique si absent
+            var orderNumber = string.IsNullOrWhiteSpace(NewOrderNumber) 
+                ? $"CMD-{DateTime.Now:yyyyMMdd}-{DateTime.Now.Ticks % 1000:000}" 
+                : NewOrderNumber;
+            
+            // Récupérer nom fournisseur
+            var supplier = Suppliers.FirstOrDefault(s => s.Id == SelectedSupplierId);
+            if (supplier == null)
+            {
+                Log.Error("[VM] Supplier not found for ID={SupplierId}", SelectedSupplierId);
+                return;
+            }
+
             var order = new Order
             {
-                OrderNumber = NewOrderNumber,
-                Supplier = NewSupplier,
+                OrderNumber = orderNumber,
+                Supplier = supplier.Name,
                 OrderDate = NewOrderDate,
-                DeliveryDate = NewDeliveryDate,
+                DeliveryDate = ExpectedDeliveryDate,
                 Status = NewStatus,
                 TotalAmount = TotalAmount,
-                Notes = string.IsNullOrWhiteSpace(NewNotes) ? null : NewNotes,
+                Notes = string.IsNullOrWhiteSpace(OrderNotes) ? null : OrderNotes,
                 UserId = _authService.CurrentUser?.Id ?? 1,
                 Items = OrderItems.ToList()
             };
@@ -532,17 +545,9 @@ public class OrdersViewModel : ViewModelBase
     {
         try
         {
-            // Pour l'instant, utilisons des données locales
-            var localSuppliers = new List<Supplier>
-            {
-                new Supplier { Id = 1, Name = "Boucherie Jackland", ContactPerson = "Zia Jackland", Phone = "555-1001", Email = "jack@boucherie-jackland.com", Address = "123 Meat Street", Notes = "Fournisseur principal de viandes" },
-                new Supplier { Id = 2, Name = "Molienda Hermandad", ContactPerson = "Maria Rodriguez", Phone = "555-1002", Email = "maria@molienda.com", Address = "456 Mill Road", Notes = "Farines et huiles" },
-                new Supplier { Id = 3, Name = "Woods Farm", ContactPerson = "Bob Johnson", Phone = "555-1003", Email = "bob@woodsfarm.com", Address = "789 Farm Lane", Notes = "Légumes, lait, œufs locaux" },
-                new Supplier { Id = 4, Name = "Theronis Harvest", ContactPerson = "Valandor Theronis", Phone = "555-1004", Email = "sarah@theronis.com", Address = "321 Harvest Ave", Notes = "Légumes frais premium" }
-            };
-            
-            Suppliers = new ObservableCollection<Supplier>(localSuppliers);
-            Log.Information($"Loaded {localSuppliers.Count} suppliers");
+            var suppliers = await _dataService.GetSuppliersAsync();
+            Suppliers = new ObservableCollection<Supplier>(suppliers);
+            Log.Information($"Loaded {suppliers.Count} suppliers");
         }
         catch (Exception ex)
         {
@@ -552,18 +557,35 @@ public class OrdersViewModel : ViewModelBase
 
     private void AddOrderItem()
     {
+        Log.Information("[VM] AddOrderItem called: ProductName={ProductName}, Quantity={Quantity}, UnitPrice={UnitPrice}", 
+            ProductName, Quantity, UnitPrice);
+            
         if (string.IsNullOrWhiteSpace(ProductName) || Quantity <= 0 || UnitPrice <= 0)
         {
-            Log.Warning("Impossible d'ajouter l'article : données manquantes ou invalides");
+            Log.Warning("[VM] AddOrderItem validation failed");
             return;
         }
 
-        // Pour l'instant, on affiche juste un message
-        Log.Information($"Article ajouté : {ProductName} - {Quantity} unités à {UnitPrice}€");
-        
-        // Réinitialiser les champs
+        var item = new OrderItem
+        {
+            ProductName = ProductName,
+            Category = "Matière première",
+            Quantity = Quantity,
+            UnitPrice = UnitPrice,
+            TotalPrice = Quantity * UnitPrice
+        };
+
+        OrderItems.Add(item);
+        Log.Information("[VM] Item added to OrderItems, count={Count}", OrderItems.Count);
+
+        // Reset form
         ProductName = string.Empty;
         Quantity = 0;
         UnitPrice = 0;
+
+        OnPropertyChanged(nameof(CurrentOrderItems));
+        OnPropertyChanged(nameof(HasOrderItems));
+        OnPropertyChanged(nameof(TotalAmount));
+        (SaveOrderCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
     }
 }

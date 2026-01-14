@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Sylvain - Travail\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.Models\\BlackWoodsCompta.Models.csproj": {}
+    "C:\\Users\\NiavlyS\\Documents\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.Models\\BlackWoodsCompta.Models.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Sylvain - Travail\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.Models\\BlackWoodsCompta.Models.csproj": {
+    "C:\\Users\\NiavlyS\\Documents\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.Models\\BlackWoodsCompta.Models.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Sylvain - Travail\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.Models\\BlackWoodsCompta.Models.csproj",
+        "projectUniqueName": "C:\\Users\\NiavlyS\\Documents\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.Models\\BlackWoodsCompta.Models.csproj",
         "projectName": "BlackWoodsCompta.Models",
-        "projectPath": "C:\\Users\\Sylvain - Travail\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.Models\\BlackWoodsCompta.Models.csproj",
-        "packagesPath": "C:\\Users\\Sylvain - Travail\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Sylvain - Travail\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.Models\\obj\\",
+        "projectPath": "C:\\Users\\NiavlyS\\Documents\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.Models\\BlackWoodsCompta.Models.csproj",
+        "packagesPath": "C:\\Users\\NiavlyS\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\NiavlyS\\Documents\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.Models\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Sylvain - Travail\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\NiavlyS\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -58,7 +58,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.416/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.417/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

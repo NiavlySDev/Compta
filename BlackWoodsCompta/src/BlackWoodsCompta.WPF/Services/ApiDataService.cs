@@ -269,4 +269,67 @@ public class ApiDataService : IDataService
     {
         return await _apiService.DeleteAsync($"/api/suppliers/{id}");
     }
+
+    // Purchase Prices - Not implemented for API (use local DB)
+    public Task<List<PurchasePrice>> GetPurchasePricesAsync(string? search = null, string? category = null, string? supplier = null)
+    {
+        throw new NotImplementedException("Purchase prices are only available in local mode");
+    }
+
+    public Task<PurchasePrice?> CreatePurchasePriceAsync(PurchasePrice price)
+    {
+        throw new NotImplementedException("Purchase prices are only available in local mode");
+    }
+
+    public Task<bool> UpdatePurchasePriceAsync(PurchasePrice price)
+    {
+        throw new NotImplementedException("Purchase prices are only available in local mode");
+    }
+
+    public Task<bool> DeletePurchasePriceAsync(int id)
+    {
+        throw new NotImplementedException("Purchase prices are only available in local mode");
+    }
+
+    // Sale Prices - Not implemented for API (use local DB)
+    public Task<List<SalePrice>> GetSalePricesAsync(string? search = null, string? category = null)
+    {
+        throw new NotImplementedException("Sale prices are only available in local mode");
+    }
+
+    public Task<SalePrice?> CreateSalePriceAsync(SalePrice price)
+    {
+        throw new NotImplementedException("Sale prices are only available in local mode");
+    }
+
+    public Task<bool> UpdateSalePriceAsync(SalePrice price)
+    {
+        throw new NotImplementedException("Sale prices are only available in local mode");
+    }
+
+    public Task<bool> DeleteSalePriceAsync(int id)
+    {
+        throw new NotImplementedException("Sale prices are only available in local mode");
+    }
+
+    // Employee Reimbursements - Not implemented for API (use local DB)
+    public Task<List<EmployeeReimbursement>> GetEmployeeReimbursementsAsync(string? search = null, string? status = null)
+    {
+        throw new NotImplementedException("Employee reimbursements are only available in local mode");
+    }
+
+    public Task<EmployeeReimbursement?> CreateEmployeeReimbursementAsync(EmployeeReimbursement reimbursement)
+    {
+        throw new NotImplementedException("Employee reimbursements are only available in local mode");
+    }
+
+    public Task<bool> UpdateEmployeeReimbursementAsync(EmployeeReimbursement reimbursement)
+    {
+        throw new NotImplementedException("Employee reimbursements are only available in local mode");
+    }
+
+    public Task<bool> DeleteEmployeeReimbursementAsync(int id)
+    {
+        throw new NotImplementedException("Employee reimbursements are only available in local mode");
+    }
 }

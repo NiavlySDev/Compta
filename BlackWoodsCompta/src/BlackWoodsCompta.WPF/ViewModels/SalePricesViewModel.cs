@@ -153,28 +153,9 @@ public class SalePricesViewModel : ViewModelBase
         try
         {
             IsLoading = true;
-            
-            // Données locales pour la démo
-            var localPrices = new List<SalePrice>
-            {
-                new SalePrice { Id = 1, ProductName = "Burrito Black Woods", Category = "Plat principal", Price = 15.00m, Cost = 8.50m, Margin = 43.33m, Description = "Burrito signature avec viande, légumes frais et sauce maison" },
-                new SalePrice { Id = 2, ProductName = "Tacos Supreme", Category = "Plat principal", Price = 12.00m, Cost = 6.80m, Margin = 43.33m, Description = "3 tacos garnis avec viande de choix" },
-                new SalePrice { Id = 3, ProductName = "Quesadilla Fromage", Category = "Entrée", Price = 8.00m, Cost = 4.20m, Margin = 47.50m, Description = "Tortilla grillée au fromage fondant" },
-                new SalePrice { Id = 4, ProductName = "Nachos Deluxe", Category = "Accompagnement", Price = 9.50m, Cost = 5.00m, Margin = 47.37m, Description = "Nachos avec guacamole, crème et jalapeños" },
-                new SalePrice { Id = 5, ProductName = "Coca-Cola", Category = "Boisson", Price = 3.50m, Cost = 1.20m, Margin = 65.71m, Description = "Boisson gazeuse 33cl" },
-                new SalePrice { Id = 6, ProductName = "Menu Burrito", Category = "Menu", Price = 18.50m, Cost = 10.70m, Margin = 42.16m, Description = "Burrito + accompagnement + boisson" }
-            };
-            
-            // Appliquer les filtres
-            if (!string.IsNullOrEmpty(SearchText))
-                localPrices = localPrices.Where(p => p.ProductName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) || 
-                                                    p.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
-            
-            if (!string.IsNullOrEmpty(FilterCategory))
-                localPrices = localPrices.Where(p => p.Category == FilterCategory).ToList();
-
-            SalePrices = new ObservableCollection<SalePrice>(localPrices);
-            Log.Information($"Loaded {localPrices.Count} sale prices");
+            var prices = await _dataService.GetSalePricesAsync(SearchText, FilterCategory);
+            SalePrices = new ObservableCollection<SalePrice>(prices);
+            Log.Information($"Loaded {prices.Count} sale prices");
         }
         catch (Exception ex)
         {

@@ -4,13 +4,18 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using System.Threading.Tasks;
+using Serilog;
 using BlackWoodsCompta.Models.Entities;
 using BlackWoodsCompta.WPF.Helpers;
+using BlackWoodsCompta.WPF.Services;
 
 namespace BlackWoodsCompta.WPF.ViewModels
 {
     public class ReimbursementsViewModel : INotifyPropertyChanged
     {
+        private readonly IDataService _dataService;
+        
         private ObservableCollection<EmployeeReimbursement> _reimbursements = new();
         private ObservableCollection<EmployeeReimbursement> _filteredReimbursements = new();
         private string _searchText = string.Empty;
@@ -62,7 +67,7 @@ namespace BlackWoodsCompta.WPF.ViewModels
             {
                 _searchText = value;
                 OnPropertyChanged();
-                ApplyFilter();
+                _ = LoadReimbursementsAsync();
             }
         }
 
@@ -103,7 +108,7 @@ namespace BlackWoodsCompta.WPF.ViewModels
             {
                 _filterStatus = value;
                 OnPropertyChanged();
-                ApplyFilter();
+                _ = LoadReimbursementsAsync();
             }
         }
 
@@ -177,8 +182,10 @@ namespace BlackWoodsCompta.WPF.ViewModels
         public ICommand SaveReimbursementCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public ReimbursementsViewModel()
+        public ReimbursementsViewModel(IDataService dataService)
         {
+            _dataService = dataService;
+            
             AddReimbursementCommand = new RelayCommand(_ => AddReimbursement());
             EditReimbursementCommand = new RelayCommand(EditReimbursement);
             DeleteReimbursementCommand = new RelayCommand(DeleteReimbursement);
@@ -188,115 +195,60 @@ namespace BlackWoodsCompta.WPF.ViewModels
             SaveReimbursementCommand = new RelayCommand(_ => SaveReimbursement());
             CancelCommand = new RelayCommand(_ => Cancel());
 
-            LoadEmployees();
-            LoadReimbursements();
+            _ = LoadEmployeesAsync();
+            _ = LoadReimbursementsAsync();
         }
 
-        private void LoadEmployees()
+        private async Task LoadEmployeesAsync()
         {
-            // Charger la liste des employés pour le ComboBox
-            var employees = new List<Employee>
+            try
             {
-                new Employee { Id = 1, Name = "Anne Holmes", Position = "Chef exécutif", Discord = "anne_blackwoods", IdRp = "ID_001" },
-                new Employee { Id = 2, Name = "John Smith", Position = "Livreur", Discord = "johnsmith_bw", IdRp = "ID_002" },
-                new Employee { Id = 3, Name = "Sarah Johnson", Position = "Chef pâtissier", Discord = "sarah_pastry", IdRp = "ID_003" },
-                new Employee { Id = 4, Name = "Mike Wilson", Position = "Serveur", Discord = "mike_service", IdRp = "ID_004" },
-                new Employee { Id = 5, Name = "Lisa Brown", Position = "Chef cuisinier", Discord = "lisa_chef", IdRp = "ID_005" }
-            };
-
-            AvailableEmployees.Clear();
-            foreach (var employee in employees)
-            {
-                AvailableEmployees.Add(employee);
-            }
-        }
-
-        private void LoadReimbursements()
-        {
-            // Charger les données réelles des remboursements BlackWoods
-            var realReimbursements = GetRealReimbursementsData();
-            
-            Reimbursements.Clear();
-            foreach (var reimbursement in realReimbursements)
-            {
-                Reimbursements.Add(reimbursement);
-            }
-        }
-
-        private ObservableCollection<EmployeeReimbursement> GetRealReimbursementsData()
-        {
-            // Employés pour les remboursements
-            var employees = new List<Employee>
-            {
-                new Employee { Id = 1, Name = "Anne Holmes", Position = "Chef exécutif", Discord = "anne_blackwoods", IdRp = "ID_001" },
-                new Employee { Id = 2, Name = "John Smith", Position = "Livreur", Discord = "johnsmith_bw", IdRp = "ID_002" },
-                new Employee { Id = 3, Name = "Sarah Johnson", Position = "Chef pâtissier", Discord = "sarah_pastry", IdRp = "ID_003" },
-                new Employee { Id = 4, Name = "Mike Wilson", Position = "Serveur", Discord = "mike_service", IdRp = "ID_004" },
-                new Employee { Id = 5, Name = "Lisa Brown", Position = "Chef cuisinier", Discord = "lisa_chef", IdRp = "ID_005" }
-            };
-
-            return new ObservableCollection<EmployeeReimbursement>
-            {
-                // Anne Holmes - Remboursement principal de $17,000 pour achats Woods Farm
-                new EmployeeReimbursement
+                IsLoading = true;
+                var employees = await _dataService.GetEmployeesAsync();
+                
+                AvailableEmployees.Clear();
+                foreach (var employee in employees)
                 {
-                    Id = 1,
-                    EmployeeId = 1,
-                    Employee = employees[0],
-                    Description = "Achats Woods Farm - Légumes pour production (Anne Holmes)",
-                    Amount = 17000.00m,
-                    RequestDate = new DateTime(2026, 1, 15),
-                    Status = ReimbursementStatus.En_Attente,
-                    Notes = "Remboursement urgent - Achats fournisseur Woods Farm"
-                },
-                new EmployeeReimbursement
-                {
-                    Id = 2,
-                    EmployeeId = 2,
-                    Employee = employees[1],
-                    Description = "Remboursement frais de transport - Livraisons (John Smith)",
-                    Amount = 250.00m,
-                    RequestDate = new DateTime(2026, 1, 10),
-                    Status = ReimbursementStatus.Approuve,
-                    ApprovedDate = new DateTime(2026, 1, 15),
-                    Notes = "Transport approuvé"
-                },
-                new EmployeeReimbursement
-                {
-                    Id = 3,
-                    EmployeeId = 3,
-                    Employee = employees[2],
-                    Description = "Équipement de cuisine - Ustensiles (Sarah Johnson)",
-                    Amount = 180.00m,
-                    RequestDate = new DateTime(2026, 1, 8),
-                    ApprovedDate = new DateTime(2026, 1, 12),
-                    PaidDate = new DateTime(2026, 1, 20),
-                    Status = ReimbursementStatus.Paye,
-                    Notes = "Équipement payé"
-                },
-                new EmployeeReimbursement
-                {
-                    Id = 4,
-                    EmployeeId = 4,
-                    Employee = employees[3],
-                    Description = "Formation hygiène alimentaire (Mike Wilson)",
-                    Amount = 150.00m,
-                    RequestDate = new DateTime(2026, 1, 5),
-                    Status = ReimbursementStatus.Rejete,
-                    Notes = "Budget formation dépassé pour ce trimestre"
-                },
-                new EmployeeReimbursement
-                {
-                    Id = 5,
-                    EmployeeId = 5,
-                    Employee = employees[4],
-                    Description = "Réparation équipement - Friteuse (Lisa Brown)",
-                    Amount = 320.00m,
-                    RequestDate = new DateTime(2026, 1, 12),
-                    Status = ReimbursementStatus.En_Attente,
-                    Notes = "Réparation urgente nécessaire"
+                    AvailableEmployees.Add(employee);
                 }
-            };
+                
+                Log.Information("[ReimbursementsVM] Loaded {Count} employees", employees.Count);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "[ReimbursementsVM] Error loading employees");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        private async Task LoadReimbursementsAsync()
+        {
+            try
+            {
+                IsLoading = true;
+                var reimbursements = await _dataService.GetEmployeeReimbursementsAsync(SearchText, FilterStatus);
+                
+                Reimbursements.Clear();
+                foreach (var reimbursement in reimbursements)
+                {
+                    Reimbursements.Add(reimbursement);
+                }
+                
+                ApplyFilter();
+                UpdateSummaryCards();
+                Log.Information("[ReimbursementsVM] Loaded {Count} reimbursements", reimbursements.Count);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "[ReimbursementsVM] Error loading reimbursements");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private void UpdateSummaryCards()
@@ -373,81 +325,135 @@ namespace BlackWoodsCompta.WPF.ViewModels
             }
         }
 
-        private void DeleteReimbursement(object? parameter)
+        private async void DeleteReimbursement(object? parameter)
         {
             if (parameter is EmployeeReimbursement reimbursement)
             {
-                Reimbursements.Remove(reimbursement);
-                ApplyFilter();
-                UpdateSummaryCards();
+                try
+                {
+                    var success = await _dataService.DeleteEmployeeReimbursementAsync(reimbursement.Id);
+                    if (success)
+                    {
+                        Reimbursements.Remove(reimbursement);
+                        ApplyFilter();
+                        UpdateSummaryCards();
+                        Log.Information("[ReimbursementsVM] Deleted reimbursement ID={Id}", reimbursement.Id);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "[ReimbursementsVM] Error deleting reimbursement");
+                }
             }
         }
 
-        private void ApproveReimbursement(object? parameter)
+        private async void ApproveReimbursement(object? parameter)
         {
             if (parameter is EmployeeReimbursement reimbursement && reimbursement.Status == ReimbursementStatus.En_Attente)
             {
-                reimbursement.Status = ReimbursementStatus.Approuve;
-                reimbursement.ApprovedDate = DateTime.Now;
-                reimbursement.UpdatedAt = DateTime.Now;
-                
-                // Rafraîchir complètement la liste pour mettre à jour l'UI
-                ApplyFilter();
-                UpdateSummaryCards();
+                try
+                {
+                    reimbursement.Status = ReimbursementStatus.Approuve;
+                    reimbursement.ApprovedDate = DateTime.Now;
+                    reimbursement.UpdatedAt = DateTime.Now;
+                    
+                    var success = await _dataService.UpdateEmployeeReimbursementAsync(reimbursement);
+                    if (success)
+                    {
+                        ApplyFilter();
+                        UpdateSummaryCards();
+                        Log.Information("[ReimbursementsVM] Approved reimbursement ID={Id}", reimbursement.Id);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "[ReimbursementsVM] Error approving reimbursement");
+                }
             }
         }
 
-        private void PayReimbursement(object? parameter)
+        private async void PayReimbursement(object? parameter)
         {
             if (parameter is EmployeeReimbursement reimbursement && reimbursement.Status == ReimbursementStatus.Approuve)
             {
-                reimbursement.Status = ReimbursementStatus.Paye;
-                reimbursement.PaidDate = DateTime.Now;
-                reimbursement.UpdatedAt = DateTime.Now;
-                
-                // Rafraîchir complètement la liste pour mettre à jour l'UI
-                ApplyFilter();
-                UpdateSummaryCards();
+                try
+                {
+                    reimbursement.Status = ReimbursementStatus.Paye;
+                    reimbursement.PaidDate = DateTime.Now;
+                    reimbursement.UpdatedAt = DateTime.Now;
+                    
+                    var success = await _dataService.UpdateEmployeeReimbursementAsync(reimbursement);
+                    if (success)
+                    {
+                        ApplyFilter();
+                        UpdateSummaryCards();
+                        Log.Information("[ReimbursementsVM] Paid reimbursement ID={Id}", reimbursement.Id);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "[ReimbursementsVM] Error paying reimbursement");
+                }
             }
         }
 
-        private void RejectReimbursement(object? parameter)
+        private async void RejectReimbursement(object? parameter)
         {
             if (parameter is EmployeeReimbursement reimbursement && reimbursement.Status == ReimbursementStatus.En_Attente)
             {
-                // Supprimer complètement la demande rejetée
-                Reimbursements.Remove(reimbursement);
-                ApplyFilter();
-                UpdateSummaryCards();
+                try
+                {
+                    var success = await _dataService.DeleteEmployeeReimbursementAsync(reimbursement.Id);
+                    if (success)
+                    {
+                        Reimbursements.Remove(reimbursement);
+                        ApplyFilter();
+                        UpdateSummaryCards();
+                        Log.Information("[ReimbursementsVM] Rejected (deleted) reimbursement ID={Id}", reimbursement.Id);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "[ReimbursementsVM] Error rejecting reimbursement");
+                }
             }
         }
 
-        private void SaveReimbursement()
+        private async void SaveReimbursement()
         {
             if (SelectedEmployee != null && !string.IsNullOrWhiteSpace(NewAmount) && !string.IsNullOrWhiteSpace(NewDescription))
             {
                 if (decimal.TryParse(NewAmount, out var amount))
                 {
-                    var newReimbursement = new EmployeeReimbursement
+                    try
                     {
-                        Id = Reimbursements.Count > 0 ? Reimbursements.Max(r => r.Id) + 1 : 1,
-                        EmployeeId = SelectedEmployee.Id,
-                        Employee = SelectedEmployee,
-                        Amount = amount,
-                        Description = NewDescription,
-                        RequestDate = NewRequestDate,
-                        Status = ReimbursementStatus.En_Attente,
-                        Notes = NewNotes,
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now
-                    };
+                        var newReimbursement = new EmployeeReimbursement
+                        {
+                            EmployeeId = SelectedEmployee.Id,
+                            Employee = SelectedEmployee,
+                            Amount = amount,
+                            Description = NewDescription,
+                            RequestDate = NewRequestDate,
+                            Status = ReimbursementStatus.En_Attente,
+                            Notes = NewNotes,
+                            CreatedAt = DateTime.Now,
+                            UpdatedAt = DateTime.Now
+                        };
 
-                    Reimbursements.Add(newReimbursement);
-                    ApplyFilter();
-                    UpdateSummaryCards();
-                    
-                    // Réinitialiser le dialogue
-                    Cancel();
+                        var created = await _dataService.CreateEmployeeReimbursementAsync(newReimbursement);
+                        if (created != null)
+                        {
+                            Reimbursements.Add(created);
+                            ApplyFilter();
+                            UpdateSummaryCards();
+                            Cancel();
+                            Log.Information("[ReimbursementsVM] Created reimbursement ID={Id}", created.Id);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "[ReimbursementsVM] Error creating reimbursement");
+                    }
                 }
             }
         }

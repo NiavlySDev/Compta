@@ -7117,19 +7117,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Sylvain - Travail\\.nuget\\packages\\": {}
+    "C:\\Users\\NiavlyS\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Sylvain - Travail\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.WPF\\BlackWoodsCompta.WPF.csproj",
+      "projectUniqueName": "C:\\Users\\NiavlyS\\Documents\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.WPF\\BlackWoodsCompta.WPF.csproj",
       "projectName": "BlackWoodsCompta",
-      "projectPath": "C:\\Users\\Sylvain - Travail\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.WPF\\BlackWoodsCompta.WPF.csproj",
-      "packagesPath": "C:\\Users\\Sylvain - Travail\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Sylvain - Travail\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.WPF\\obj\\",
+      "projectPath": "C:\\Users\\NiavlyS\\Documents\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.WPF\\BlackWoodsCompta.WPF.csproj",
+      "packagesPath": "C:\\Users\\NiavlyS\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\NiavlyS\\Documents\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.WPF\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Sylvain - Travail\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\NiavlyS\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0-windows"
@@ -7141,8 +7141,8 @@
         "net8.0-windows7.0": {
           "targetAlias": "net8.0-windows",
           "projectReferences": {
-            "C:\\Users\\Sylvain - Travail\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.Models\\BlackWoodsCompta.Models.csproj": {
-              "projectPath": "C:\\Users\\Sylvain - Travail\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.Models\\BlackWoodsCompta.Models.csproj"
+            "C:\\Users\\NiavlyS\\Documents\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.Models\\BlackWoodsCompta.Models.csproj": {
+              "projectPath": "C:\\Users\\NiavlyS\\Documents\\Coding\\Windows\\Compta\\BlackWoodsCompta\\src\\BlackWoodsCompta.Models\\BlackWoodsCompta.Models.csproj"
             }
           }
         }
@@ -7242,7 +7242,7 @@
             "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.416/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.417/PortableRuntimeIdentifierGraph.json"
       }
     }
   },
